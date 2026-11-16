@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>法硕备考助手 · 智能计划与打卡</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#1f2430; --muted:#7b8497;
+  --line:#e6eaf2; --brand:#3b5bdb; --brand2:#5c7cfa;
+  --red:#e74c3c; --blue:#3498db; --green:#2ecc71; --purple:#9b59b6; --gray:#95a5a6;
+  --shadow:0 2px 14px rgba(30,45,90,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+.app{display:flex;min-height:100vh}
+.sidebar{width:216px;flex:0 0 216px;background:#1e2740;color:#cfd6e6;position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;z-index:20}
+.logo{padding:22px 20px 16px;font-size:18px;font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo small{display:block;font-size:11px;color:#8f9bb8;font-weight:400;margin-top:3px}
+.nav{padding:12px 10px;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;cursor:pointer;margin-bottom:3px;color:#b9c2d8;transition:.15s}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:var(--brand);color:#fff}
+.nav-item .ic{width:18px;text-align:center;font-size:15px}
+.side-foot{padding:14px 18px;font-size:11px;color:#7e8aa8;border-top:1px solid rgba(255,255,255,.08)}
+.main{margin-left:216px;flex:1;min-width:0;padding:0 26px 60px}
+.topbar{background:linear-gradient(110deg,#3b5bdb,#5c7cfa);color:#fff;margin:0 -26px 22px;padding:18px 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
+.topbar h1{font-size:17px;font-weight:600}
+.topbar .sub{font-size:12px;opacity:.85;margin-top:2px}
+.top-stats{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.tstat{text-align:center}
+.tstat b{display:block;font-size:22px;line-height:1.1}
+.tstat span{font-size:11px;opacity:.85}
+.pbar{width:150px;height:7px;background:rgba(255,255,255,.25);border-radius:9px;overflow:hidden}
+.pbar i{display:block;height:100%;background:#fff;border-radius:9px}
+.page-head{display:flex;justify-content:space-between;align-items:center;margin:6px 0 16px;flex-wrap:wrap;gap:10px}
+.page-head h2{font-size:19px}
+.muted{color:var(--muted);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px 20px;margin-bottom:18px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g4{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+.btn{border:0;border-radius:9px;padding:9px 15px;cursor:pointer;font-size:13px;background:#edf0f7;color:#35415c;transition:.15s;font-family:inherit}
+.btn:hover{filter:brightness(.96)}
+.btn.primary{background:var(--brand);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:#53607a}
+.btn.danger{background:#fdeceb;color:#c0392b}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:7px}
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;color:#fff;font-weight:600}
+.task{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.task:last-child{border-bottom:0}
+.chk{width:20px;height:20px;flex:0 0 20px;border:2px solid #c4ccdb;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;margin-top:2px;user-select:none}
+.chk.on{background:var(--green);border-color:var(--green)}
+.task-body{flex:1;min-width:0}
+.task-title{font-weight:500}
+.task.done .task-title{text-decoration:line-through;color:var(--muted)}
+.task-meta{font-size:11px;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+.task-ops{display:flex;gap:5px;flex:0 0 auto}
+.subject-card{border-left:4px solid;padding:14px 16px;border-radius:10px;background:#fafbfe}
+.stat-card{text-align:center;padding:18px 8px}
+.stat-card b{display:block;font-size:28px;line-height:1.1}
+.stat-card span{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:12px;background:#fafbfe}
+tr:last-child td{border-bottom:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-h{text-align:center;font-size:11px;color:var(--muted);padding:4px 0}
+.cal-d{min-height:64px;border:1px solid var(--line);border-radius:8px;padding:6px;cursor:pointer;background:#fff;transition:.12s}
+.cal-d:hover{border-color:var(--brand2)}
+.cal-d.other{opacity:.35}
+.cal-d.today{background:#eef2ff;border-color:var(--brand)}
+.cal-d .dnum{font-size:12px;font-weight:600}
+.cal-d .dinfo{font-size:10px;color:var(--muted);margin-top:4px}
+.mini-bar{height:4px;background:#eceff6;border-radius:4px;margin-top:5px;overflow:hidden}
+.mini-bar i{display:block;height:100%;background:var(--green)}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+.field label{font-size:12px;color:var(--muted)}
+input,select,textarea{font-family:inherit;font-size:13px;border:1px solid #d8deea;border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink);width:100%}
+textarea{resize:vertical;min-height:80px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand2)}
+.cd-big{font-size:24px;font-weight:700}
+.cd-past{color:var(--muted)}
+.sug{padding:11px 14px;background:#f7f9fe;border-left:3px solid var(--brand2);border-radius:0 8px 8px 0;margin-bottom:9px;font-size:13px}
+.summary-box{background:#f8f9fd;border:1px dashed #cfd7e8;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.9}
+.linkbtn{display:inline-block;padding:6px 11px;border-radius:8px;background:#eef2ff;color:var(--brand);text-decoration:none;font-size:12px;margin:0 6px 6px 0}
+.linkbtn:hover{background:#dfe6ff}
+.modal-mask{position:fixed;inset:0;background:rgba(20,28,48,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:460px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{margin-bottom:14px}
+.modal-act{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.badge{background:#eef2ff;color:var(--brand);border-radius:6px;padding:1px 7px;font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">法硕备考助手<small>计划 · 打卡 · 复盘</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">Web Demo v1.0<br>数据保存在本机浏览器</div>
+  </aside>
+  <main class="main">
+    <div class="topbar" id="topbar"></div>
+    <div id="main"></div>
+  </main>
+</div>
+<div id="modal-root"></div>
+<script>
+(function(){
+'use strict';
+var KEY='fashuo_plan_v1';
+var SUBJECTS=[
+  {id:'politics',name:'政治',color:'#e74c3c'},
+  {id:'english',name:'英语一',color:'#3498db'},
+  {id:'base',name:'专业基础课',color:'#2ecc71'},
+  {id:'comp',name:'专业综合课',color:'#9b59b6'}
+];
+var EXTRA=[{id:'review',name:'当日复盘',color:'#95a5a6'}];
+var ALL=SUBJECTS.concat(EXTRA);
+var WEIGHTS={
+  basic:{politics:.15,english:.30,base:.30,comp:.25},
+  intensive:{politics:.20,english:.25,base:.30,comp:.25},
+  sprint:{politics:.25,english:.20,base:.28,comp:.27},
+  final:{politics:.30,english:.15,base:.27,comp:.28}
+};
+var PHASES={basic:'基础阶段',intensive:'强化阶段',sprint:'冲刺阶段',final:'决战阶段'};
+var TASKS={
+  politics:{
+    basic:['研读核心考案章节并整理框架','精做1000题对应部分','梳理马原原理与例题对应'],
+    intensive:['二刷1000题错题并标注原因','背诵冲刺背诵手册重点','整理时政热点专题笔记'],
+    sprint:['背诵分析题押题素材','限时刷选择题模拟卷','默写核心考点提纲'],
+    final:['全真模拟政治整套卷','背诵肖四分析题要点','回顾错题本高频考点']
+  },
+  english:{
+    basic:['精读真题阅读并逐句翻译','背诵核心词汇List','长难句拆解专项训练'],
+    intensive:['近十年阅读真题限时训练','整理作文模板并仿写','新题型与翻译专项突破'],
+    sprint:['精读近五年阅读并复盘错因','完形与新题型限时训练','作文模板固化并默写'],
+    final:['整套英语真题全真模拟','回看阅读错题与生词本','作文功能句查漏补缺']
+  },
+  base:{
+    basic:['通读刑法学教材搭建体系','通读民法学教材搭建体系','刑法总论概念对比整理'],
+    intensive:['刑法分则重点罪名对比记忆','民法请求权基础体系梳理','基础课历年真题分科训练'],
+    sprint:['刑法案例限时分析作答','民法真题错题二次消化','重点法条与司法解释对照记忆'],
+    final:['基础课全真模拟卷一套','高频罪名与制度默写回顾','主观题答题框架复盘']
+  },
+  comp:{
+    basic:['法理学通读并做章节笔记','宪法学条文通读与框架','法制史按朝代梳理线索'],
+    intensive:['法理学论述题素材积累','宪法修正案对照记忆','法制史横向制度对比'],
+    sprint:['法理学论述题框架背诵','宪法条文关键词默写','法制史高频考点串讲回放'],
+    final:['综合课全真模拟卷一套','三科核心考点清单默写','简答与论述答题模板复盘']
+  },
+  review:{basic:['当日复盘＋明日计划微调'],intensive:['当日复盘＋明日计划微调'],sprint:['当日复盘＋明日计划微调'],final:['当日复盘＋明日计划微调']}
+};
+var state;
+function uid(){return Math.random().toString(36).slice(2,9);}
+function pad(n){return n<10?'0'+n:''+n;}
+function fmt(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parse(s){var p=String(s).split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function addDays(s,n){var d=parse(s);d.setDate(d.getDate()+n);return fmt(d);}
+function diffDays(a,b){return Math.round((parse(b)-parse(a))/86400000);}
+function today(){return fmt(new Date());}
+function mondayOf(s){var d=parse(s);var w=d.getDay();var off=(w===0?6:w-1);d.setDate(d.getDate()-off);return fmt(d);}
+function phaseOf(n){if(n>150)return 'basic';if(n>90)return 'intensive';if(n>30)return 'sprint';return 'final';}
+function getSub(id){for(var i=0;i<ALL.length;i++){if(ALL[i].id===id)return ALL[i];}return {id:id,name:id,color:'#95a5a6'};}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function generatePlan(from,to,opts){
+  var cur=parse(from),end=parse(to),plans={},idx=0,guard=0;
+  while(cur<=end && guard<400){
+    var key=fmt(cur),left=diffDays(key,to)+1,ph=phaseOf(left),w=WEIGHTS[ph],tasks=[];
+    SUBJECTS.forEach(function(s,si){
+      var adj=(opts.weightAdjust&&opts.weightAdjust[s.id])||1;
+      var hrs=(opts.hours||6)*w[s.id]*adj;
+      hrs=Math.max(.5,Math.round(hrs*2)/2);
+      var list=TASKS[s.id][ph];
+      var content=list[(idx+si)%list.length];
+      tasks.push({id:uid(),subject:s.id,content:content,duration:hrs,done:false,note:'',custom:false});
+    });
+    var rlist=TASKS.review[ph];
+    tasks.push({id:uid(),subject:'review',content:rlist[idx%rlist.length],duration:.5,done:false,note:'',custom:false});
+    plans[key]=tasks;
+    cur.setDate(cur.getDate()+1);idx++;guard++;
+  }
+  return plans;
+}
+function defaultState(){
+  var t=today(),exam='2026-12-19';
+  var p={examType:'非法学',examDate:exam,targetSchool:'',hours:6,weightAdjust:{politics:1,english:1,base:1,comp:1}};
+  var s={profile:p,plans:{},countdowns:[],feedback:[],ui:{tab:'today',calMonth:t.slice(0,7),weekStart:mondayOf(t)}};
+  s.plans=generatePlan(t,exam,p);
+  s.countdowns=[
+    {id:uid(),title:'2027考研初试',date:'2026-12-19',color:'#e74c3c'},
+    {id:uid(),title:'打印准考证',date:'2026-12-11',color:'#3498db'},
+    {id:uid(),title:'网上确认截止',date:'2026-11-05',color:'#95a5a6'},
+    {id:uid(),title:'考研复试（预估）',date:'2027-03-20',color:'#2ecc71'},
+    {id:uid(),title:'调剂系统开放（预估）',date:'2027-04-01',color:'#9b59b6'}
+  ];
+  return s;
+}
+var SERVER_MODE = false; /* static build: browser-localStorage only */
+var saveTimer = null;
+function validState(s){return !!(s && s.profile && s.plans);}
+function load(){
+  if(!SERVER_MODE){
+    try{var raw=localStorage.getItem(KEY);if(raw){var s=JSON.parse(raw);if(validState(s))return s;}}catch(e){}
+    try{var sx=new XMLHttpRequest();sx.open('GET','state.json',false);sx.send();if(sx.status===200){var s0=JSON.parse(sx.responseText);if(validState(s0))return s0;}}catch(e){}
+    return defaultState();
+  }
+  try{
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET','/api/state',false);
+    xhr.send();
+    if(xhr.status===200){var s=JSON.parse(xhr.responseText);if(validState(s))return s;}
+  }catch(e){}
+  return defaultState();
+}
+function save(){
+  if(typeof state!=='undefined'){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  if(!SERVER_MODE)return;
+  if(saveTimer)clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    try{
+      var xhr=new XMLHttpRequest();xhr.open('POST','/api/state',true);
+      xhr.setRequestHeader('Content-Type','application/json;charset=utf-8');
+      xhr.onload=function(){if(xhr.status>=400){setOnlineStatus(false);}};
+      xhr.onerror=function(){setOnlineStatus(false);};
+      xhr.send(JSON.stringify(state));
+    }catch(e){setOnlineStatus(false);}
+  },150);
+}
+function setOnlineStatus(ok){
+  var el=document.getElementById('online-status');
+  if(el){el.textContent=ok?'网站模式 · 数据已同步到服务器':'网站模式 · 同步失败，请检查服务';
+    el.style.color=ok?'#d3f9d8':'#ffd6d6';}
+}
+
+var TABS=[
+  {id:'today',name:'今日计划',ic:'✓'},
+  {id:'calendar',name:'计划日历',ic:'▦'},
+  {id:'weekly',name:'周报优化',ic:'▤'},
+  {id:'data',name:'打卡数据',ic:'▧'},
+  {id:'posts',name:'经验贴',ic:'☆'},
+  {id:'countdown',name:'关键倒计时',ic:'◷'},
+  {id:'feedback',name:'反馈板',ic:'✎'},
+  {id:'settings',name:'设置',ic:'⚙'}
+];
+function headerHTML(){
+  var left=diffDays(today(),state.profile.examDate),ph=PHASES[phaseOf(left)];
+  var tasks=state.plans[today()]||[],done=0;
+  tasks.forEach(function(t){if(t.done)done++;});
+  var rate=tasks.length?Math.round(done/tasks.length*100):0;
+  return '<div><h1>法硕备考助手 <span class="badge">'+ph+'</span></h1>'+
+    '<div class="sub"><span id="online-status">'+(SERVER_MODE?'网站模式 · 数据保存在服务器':'本地模式 · 数据保存在此浏览器')+'</span> · '+(state.profile.targetSchool?esc(state.profile.targetSchool)+' · ':'')+'距初试 '+(left>=0?left:'已过'+(-left))+' 天 · '+esc(state.profile.examType)+' · 每日 '+state.profile.hours+'h</div></div>'+
+    '<div class="top-stats">'+
+      '<div class="tstat"><b>'+left+'</b><span>初试倒计时（天）</span></div>'+
+      '<div class="tstat"><b>'+done+'/'+tasks.length+'</b><span>今日完成</span></div>'+
+      '<div class="tstat"><b>'+rate+'%</b><span>今日完成率</span></div>'+
+      '<div class="tstat"><div class="pbar"><i style="width:'+rate+'%"></i></div><span>进度</span></div>'+
+    '</div>';
+}
+function renderNav(){
+  document.getElementById('nav').innerHTML=TABS.map(function(t){
+    return '<div class="nav-item '+(state.ui.tab===t.id?'active':'')+'" data-act="nav" data-tab="'+t.id+'"><span class="ic">'+t.ic+'</span>'+t.name+'</div>';
+  }).join('');
+}
+function taskHTML(t,date){
+  var s=getSub(t.subject);
+  return '<div class="task '+(t.done?'done':'')+'">'+
+    '<div class="chk '+(t.done?'on':'')+'" data-act="toggle" data-date="'+date+'" data-id="'+t.id+'">'+(t.done?'✓':'')+'</div>'+
+    '<div class="task-body"><div class="task-title">'+esc(t.content)+(t.custom?' <span class="badge">自定义</span>':'')+'</div>'+
+    '<div class="task-meta"><span class="tag" style="background:'+s.color+'">'+s.name+'</span><span>计划 '+t.duration+'h</span>'+(t.note?'<span>备注：'+esc(t.note)+'</span>':'')+'</div></div>'+
+    '<div class="task-ops"><button class="btn sm ghost" data-act="edit-task" data-date="'+date+'" data-id="'+t.id+'">改</button>'+
+    '<button class="btn sm danger" data-act="del-task" data-date="'+date+'" data-id="'+t.id+'">删</button></div></div>';
+}
+function viewToday(){
+  var d=today(),tasks=state.plans[d]||[];
+  var h='<div class="page-head"><div><h2>今日计划 · '+d+'</h2><div class="muted">点击方框打卡，点「改」可自由修改任意每日任务</div></div>'+
+    '<div><button class="btn ghost" data-act="recalc-today">重算今日</button> <button class="btn primary" data-act="add-task" data-date="'+d+'">＋ 新增任务</button></div></div>';
+  h+='<div class="grid g4">';
+  SUBJECTS.forEach(function(s){
+    var st=tasks.filter(function(t){return t.subject===s.id;}),dn=st.filter(function(t){return t.done;}).length;
+    h+='<div class="subject-card" style="border-color:'+s.color+'"><div class="muted">'+s.name+'</div><div style="font-size:20px;font-weight:700">'+dn+' / '+st.length+'</div>'+
+      '<div class="mini-bar"><i style="width:'+(st.length?dn/st.length*100:0)+'%;background:'+s.color+'"></i></div></div>';
+  });
+  h+='</div><div class="card">';
+  h+=tasks.length?tasks.map(function(t){return taskHTML(t,d);}).join(''):'<div class="empty">今日暂无任务，点右上角新增或重算今日</div>';
+  h+='</div>';
+  return h;
+}
+function viewCalendar(){
+  var cm=state.ui.calMonth,parts=cm.split('-'),y=+parts[0],m=+parts[1];
+  var first=new Date(y,m-1,1),start=mondayOf(fmt(first));
+  var h='<div class="page-head"><div><h2>计划日历</h2><div class="muted">每格显示「已完成／总任务」，点日期编辑当天计划</div></div>'+
+    '<div><button class="btn ghost" data-act="cal-prev">← 上月</button> <button class="btn ghost" data-act="cal-next">下月 →</button></div></div><div class="card"><div class="cal">';
+  ['一','二','三','四','五','六','日'].forEach(function(x){h+='<div class="cal-h">周'+x+'</div>';});
+  for(var i=0;i<42;i++){
+    var ds=addDays(start,i),d=parse(ds),other=(d.getMonth()+1)!==m,isToday=ds===today();
+    var tasks=state.plans[ds]||[],dn=tasks.filter(function(t){return t.done;}).length;
+    var rate=tasks.length?dn/tasks.length*100:0;
+    h+='<div class="cal-d '+(other?'other':'')+' '+(isToday?'today':'')+'" data-act="cal-day" data-date="'+ds+'">'+
+      '<div class="dnum">'+d.getDate()+'</div>'+(tasks.length?'<div class="dinfo">'+dn+'/'+tasks.length+'</div><div class="mini-bar"><i style="width:'+rate+'%"></i></div>':'<div class="dinfo">—</div>')+'</div>';
+  }
+  h+='</div></div>';
+  var sel=state.ui.selDate||today(),st=state.plans[sel]||[];
+  h+='<div class="card"><div class="page-head"><div><h2 style="font-size:16px">'+sel+' 的任务</h2></div><button class="btn primary sm" data-act="add-task" data-date="'+sel+'">＋ 新增任务</button></div>';
+  h+=st.length?st.map(function(t){return taskHTML(t,sel);}).join(''):'<div class="empty">这一天暂无任务</div>';
+  h+='</div>';
+  return h;
+}
+function computeWeek(ws){
+  var st={total:0,done:0,bySubject:{},days:[],perfect:0,zero:0,streak:0,maxStreak:0};
+  ALL.forEach(function(s){st.bySubject[s.id]={total:0,done:0};});
+  for(var i=0;i<7;i++){
+    var ds=addDays(ws,i),tasks=state.plans[ds]||[],dn=0;
+    tasks.forEach(function(t){
+      st.total++;if(t.done){st.done++;dn++;}
+      if(st.bySubject[t.subject]){st.bySubject[t.subject].total++;if(t.done)st.bySubject[t.subject].done++;}
+    });
+    var full=tasks.length>0&&dn===tasks.length;
+    if(full)st.perfect++;if(tasks.length>0&&dn===0)st.zero++;
+    st.days.push({date:ds,total:tasks.length,done:dn,full:full});
+  }
+  var t=today();
+  st.days.forEach(function(x){
+    if(x.date<=t){if(x.full){st.streak++;st.maxStreak=Math.max(st.maxStreak,st.streak);}else{st.streak=0;}}
+  });
+  st.streak=st.maxStreak;
+  st.rate=st.total?st.done/st.total:0;
+  return st;
+}
+function buildSummary(st){
+  var best=null,worst=null;
+  SUBJECTS.forEach(function(s){
+    var b=st.bySubject[s.id],r=b.total?b.done/b.total:1;
+    if(!best||r>best.r)best={n:s.name,r:r};
+    if(!worst||r<worst.r)worst={n:s.name,r:r};
+  });
+  return '本周共设置 '+st.total+' 个目标，完成 '+st.done+' 个，未完成 '+(st.total-st.done)+' 个，完成率 '+Math.round(st.rate*100)+'%。'+
+    '其中「'+best.n+'」完成度最高（'+Math.round(best.r*100)+'%），「'+worst.n+'」完成度最低（'+Math.round(worst.r*100)+'%）。'+
+    '连续打卡 '+st.streak+' 天，全天满完成 '+st.perfect+' 天'+(st.zero?'，出现 '+st.zero+' 天零完成':'')+'。';
+}
+function buildSuggestions(st){
+  var a=[],subs=SUBJECTS.slice();
+  subs.sort(function(x,y){
+    var bx=st.bySubject[x.id],by=st.bySubject[y.id];
+    var rx=bx.total?bx.done/bx.total:1,ry=by.total?by.done/by.total:1;return rx-ry;
+  });
+  var w=subs[0],b=st.bySubject[w.id],wr=b.total?b.done/b.total:0;
+  if(wr<.7)a.push('「'+w.name+'」完成率仅 '+Math.round(wr*100)+'%，是本周最大短板。下周将下调该科任务量约 20%，把时间让给完成度更高的科目。');
+  if(st.rate<.6)a.push('本周总完成率 '+Math.round(st.rate*100)+'%，任务负荷偏重。建议把每日总时长从 '+state.profile.hours+'h 下调至 '+Math.max(3,state.profile.hours-.5)+'h，先保证不断档。');
+  else if(st.rate>.9)a.push('本周完成率超过 90%，执行状态良好。可把每日总时长提升 0.5h，或增加一套限时训练。');
+  if(st.zero)a.push('有 '+st.zero+' 天出现零完成，常见于计划过满或时间冲突。建议每天预留 0.5h 机动时间，并避开固定占用时段。');
+  if(!a.length)a.push('本周执行平稳，各科目完成度均衡。保持当前节奏，进入下一阶段后按新阶段重点调整资料。');
+  return a;
+}
+function viewWeekly(){
+  var ws=state.ui.weekStart,st=computeWeek(ws),sug=buildSuggestions(st);
+  var h='<div class="page-head"><div><h2>周报与优化</h2><div class="muted">统计区间：'+ws+' 至 '+addDays(ws,6)+'</div></div>'+
+    '<div><button class="btn ghost" data-act="week-prev">← 上周</button> <button class="btn ghost" data-act="week-next">下周 →</button> <button class="btn primary" data-act="apply-opt">应用优化到下周</button></div></div>';
+  h+='<div class="grid g4">'+
+    '<div class="card stat-card"><b>'+st.total+'</b><span>本周目标</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--green)">'+st.done+'</b><span>已完成</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--red)">'+(st.total-st.done)+'</b><span>未完成</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--brand)">'+Math.round(st.rate*100)+'%</b><span>完成率</span></div></div>';
+  h+='<div class="grid g2"><div class="card"><h3 style="font-size:15px;margin-bottom:12px">各科目完成情况</h3><table><tr><th>科目</th><th>完成／目标</th><th>完成率</th></tr>';
+  SUBJECTS.forEach(function(s){
+    var b=st.bySubject[s.id],r=b.total?Math.round(b.done/b.total*100):0;
+    h+='<tr><td><span class="tag" style="background:'+s.color+'">'+s.name+'</span></td><td>'+b.done+' / '+b.total+'</td><td>'+r+'%</td></tr>';
+  });
+  h+='</table></div><div class="card"><h3 style="font-size:15px;margin-bottom:12px">本周逐日</h3><table><tr><th>日期</th><th>完成／总</th><th>状态</th></tr>';
+  st.days.forEach(function(x){
+    var status=x.full?'<span style="color:var(--green)">✓ 全完成</span>':((x.total&&x.done===0)?'<span style="color:var(--red)">未开始</span>':'进行中');
+    h+='<tr><td>'+x.date.slice(5)+'</td><td>'+x.done+' / '+x.total+'</td><td>'+status+'</td></tr>';
+  });
+  h+='</table></div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:10px">自动总结</h3><div class="summary-box">'+buildSummary(st)+'</div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:10px">优化建议（基于实际完成情况）</h3>'+sug.map(function(x){return '<div class="sug">'+x+'</div>';}).join('')+'</div>';
+  return h;
+}
+function viewPosts(){
+  var left=diffDays(today(),state.profile.examDate),ph=phaseOf(left);
+  var engines=[{n:'知乎',u:'https://www.zhihu.com/search?type=content&q='},{n:'小红书',u:'https://www.xiaohongshu.com/search_result?keyword='},{n:'哔哩哔哩',u:'https://search.bilibili.com/all?keyword='},{n:'百度',u:'https://www.baidu.com/s?wd='}];
+  var h='<div class="page-head"><div><h2>经验贴聚合</h2><div class="muted">按当前阶段「'+PHASES[ph]+'」与科目自动生成检索词，一键直达搜索</div></div></div>';
+  h+='<div class="grid g2">';
+  SUBJECTS.forEach(function(s){
+    var kw='法硕'+state.profile.examType+' '+PHASES[ph]+' '+s.name+' 备考经验';
+    h+='<div class="card" style="border-left:4px solid '+s.color+'"><h3 style="font-size:15px">'+s.name+'</h3><div class="muted" style="margin:6px 0 10px">检索词：'+kw+'</div>'+
+      engines.map(function(e){return '<a class="linkbtn" target="_blank" rel="noopener" href="'+e.u+encodeURIComponent(kw)+'">'+e.n+' 搜索 ↗</a>';}).join('')+'</div>';
+  });
+  h+='</div><div class="card"><h3 style="font-size:15px;margin-bottom:10px">'+PHASES[ph]+'精选备考要点</h3><div class="summary-box">'+tipsFor(ph)+'</div></div>';
+  return h;
+}
+function tipsFor(ph){
+  var m={
+    basic:'① 先把四科教材通读一遍，建立框架再抠细节，切忌一上来就背。② 英语以真题为纲，每天精读一篇阅读并逐句翻译。③ 刑法重体系、民法重逻辑，用思维导图把总论分论串起来。④ 法理学先理解概念之间的关系，宪法与法制史按时间线整理。',
+    intensive:'① 真题进入二刷阶段，重点分析错误选项为什么错。② 政治开始系统刷选择题，错题按知识点归类。③ 专业课建立题目、考点、法条三联笔记。④ 每周做一次全科小模拟，检验时间分配。',
+    sprint:'① 背诵进入高峰期，采用框架、关键词、默写三轮法。② 英语作文模板固化，阅读保持手感不断。③ 政治分析题开始积累素材，选择题限时训练。④ 专业课按真题高频考点排序，先背分值高的。',
+    final:'① 全真模拟严格按考试时间，训练答题节奏。② 回归错题本与核心清单，不再大面积铺新内容。③ 政治分析题集中背诵，专业课默写框架。④ 调整作息，考前三天只看错题与提纲。'
+  };
+  return m[ph]||'';
+}
+function viewCountdown(){
+  var t=today();
+  var h='<div class="page-head"><div><h2>关键日期倒计时</h2><div class="muted">内置考研节点＋自定义添加，自动计算剩余天数</div></div></div>';
+  h+='<div class="card"><table><tr><th>事项</th><th>日期</th><th>倒计时</th><th>操作</th></tr>';
+  var list=state.countdowns.slice().sort(function(a,b){return a.date<b.date?-1:1;});
+  list.forEach(function(c){
+    var d=diffDays(t,c.date),txt=d>0?'还有 '+d+' 天':(d===0?'就是今天':'已过 '+(-d)+' 天');
+    h+='<tr><td><span class="tag" style="background:'+c.color+'">'+esc(c.title)+'</span></td><td>'+c.date+'</td><td class="'+(d<0?'cd-past':'cd-big')+'" style="font-size:'+(d>=0?'16px':'13px')+'">'+txt+'</td>'+
+      '<td><button class="btn sm danger" data-act="del-cd" data-id="'+c.id+'">删除</button></td></tr>';
+  });
+  h+='</table></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:12px">添加自定义倒计时</h3><div class="form-row">'+
+    '<div class="field"><label>事项名称</label><input id="cd-title" placeholder="如：目标院校报名截止"></div>'+
+    '<div class="field"><label>日期</label><input id="cd-date" type="date"></div>'+
+    '<div class="field" style="flex:0 0 130px"><label>颜色</label><select id="cd-color"><option value="#3b5bdb">蓝</option><option value="#e74c3c">红</option><option value="#2ecc71">绿</option><option value="#9b59b6">紫</option><option value="#f19837">橙</option></select></div>'+
+    '<button class="btn primary" data-act="add-cd">添加</button></div></div>';
+  return h;
+}
+function viewFeedback(){
+  var h='<div class="page-head"><div><h2>意见反馈板</h2><div class="muted">你的意见会被保存，可导出或复制后发给开发者，据此修改程序</div></div>'+
+    '<div><button class="btn ghost" data-act="copy-fb">复制全部</button> <button class="btn primary" data-act="export-fb">导出 JSON</button></div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:12px">提交反馈</h3>'+
+    '<div class="form-row"><div class="field" style="flex:0 0 170px"><label>类型</label><select id="fb-type"><option>功能建议</option><option>体验问题</option><option>内容纠错</option><option>其他</option></select></div>'+
+    '<div class="field"><label>联系方式（可选）</label><input id="fb-contact" placeholder="邮箱／微信，便于回复"></div></div>'+
+    '<div class="field"><label>反馈内容</label><textarea id="fb-content" placeholder="请描述你希望增加的功能、遇到的问题或需要修改的地方……"></textarea></div>'+
+    '<div style="margin-top:12px"><button class="btn primary" data-act="add-fb">提交反馈</button></div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:12px">已提交 '+state.feedback.length+' 条</h3>';
+  if(!state.feedback.length){h+='<div class="empty">还没有反馈，欢迎提第一条</div>';}
+  else{
+    h+='<table><tr><th>时间</th><th>类型</th><th>内容</th><th>联系方式</th><th>操作</th></tr>';
+    state.feedback.slice().reverse().forEach(function(f){
+      h+='<tr><td>'+f.time+'</td><td><span class="badge">'+esc(f.type)+'</span></td><td>'+esc(f.content)+'</td><td>'+esc(f.contact||'—')+'</td>'+
+        '<td><button class="btn sm danger" data-act="del-fb" data-id="'+f.id+'">删除</button></td></tr>';
+    });
+    h+='</table>';
+  }
+  h+='</div>';
+  return h;
+}
+function dataSummary(){
+  var all=[];
+  Object.keys(state.plans).sort().forEach(function(d){
+    (state.plans[d]||[]).forEach(function(t){
+      all.push({date:d,subject:t.subject,sname:getSub(t.subject).name,content:t.content,duration:t.duration,done:!!t.done,note:t.note||'',custom:!!t.custom});
+    });
+  });
+  return all;
+}
+function viewData(){
+  var all=dataSummary();
+  var total=all.length,done=all.filter(function(x){return x.done;}).length;
+  var ph=0,dh=0;all.forEach(function(x){ph+=x.duration;if(x.done)dh+=x.duration;});
+  var activeDays=0;
+  Object.keys(state.plans).forEach(function(d){if((state.plans[d]||[]).some(function(t){return t.done;}))activeDays++;});
+  var h='<div class="page-head"><div><h2>打卡数据总览</h2><div class="muted">全部计划与打卡记录一览，可筛选、导出、备份与恢复</div></div>'+
+    '<div><button class="btn ghost" data-act="export-detail">导出明细 CSV</button> <button class="btn ghost" data-act="export-matrix">导出打卡矩阵</button> <button class="btn primary" data-act="export-state">备份 JSON</button></div></div>';
+  h+='<div class="grid g4">'+
+    '<div class="card stat-card"><b>'+total+'</b><span>计划任务总数</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--green)">'+done+'</b><span>已完成打卡</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--red)">'+(total-done)+'</b><span>未完成</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--brand)">'+(total?Math.round(done/total*100):0)+'%</b><span>总完成率</span></div></div>';
+  h+='<div class="grid g4">'+
+    '<div class="card stat-card"><b>'+activeDays+'</b><span>有打卡的天数</span></div>'+
+    '<div class="card stat-card"><b>'+Object.keys(state.plans).length+'</b><span>已生成计划天数</span></div>'+
+    '<div class="card stat-card"><b>'+(Math.round(ph*10)/10)+'h</b><span>累计计划时长</span></div>'+
+    '<div class="card stat-card"><b style="color:var(--green)">'+(Math.round(dh*10)/10)+'h</b><span>累计完成时长</span></div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:12px">分科目统计</h3><table><tr><th>科目</th><th>任务数</th><th>已完成</th><th>完成率</th><th>完成时长</th></tr>';
+  ALL.forEach(function(s){
+    var arr=all.filter(function(x){return x.subject===s.id;}),dn=arr.filter(function(x){return x.done;}).length,hr=0;
+    arr.forEach(function(x){if(x.done)hr+=x.duration;});
+    h+='<tr><td><span class="tag" style="background:'+s.color+'">'+s.name+'</span></td><td>'+arr.length+'</td><td>'+dn+'</td><td>'+(arr.length?Math.round(dn/arr.length*100):0)+'%</td><td>'+(Math.round(hr*10)/10)+'h</td></tr>';
+  });
+  h+='</table></div>';
+  var f=state.ui.dataFilter||{status:'all',subject:'all',kw:'',from:'',to:''};
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:12px">打卡明细（共 '+total+' 条）</h3>'+
+    '<div class="form-row">'+
+    '<div class="field" style="flex:0 0 120px"><label>状态</label><select id="df-status"><option value="all" '+(f.status==='all'?'selected':'')+'>全部</option><option value="done" '+(f.status==='done'?'selected':'')+'>已完成</option><option value="undone" '+(f.status==='undone'?'selected':'')+'>未完成</option></select></div>'+
+    '<div class="field" style="flex:0 0 140px"><label>科目</label><select id="df-subject"><option value="all">全部科目</option>'+ALL.map(function(s){return '<option value="'+s.id+'" '+(f.subject===s.id?'selected':'')+'>'+s.name+'</option>';}).join('')+'</select></div>'+
+    '<div class="field"><label>起始日期</label><input id="df-from" type="date" value="'+f.from+'"></div>'+
+    '<div class="field"><label>结束日期</label><input id="df-to" type="date" value="'+f.to+'"></div>'+
+    '<div class="field"><label>关键词</label><input id="df-kw" value="'+esc(f.kw)+'" placeholder="搜索任务内容"></div>'+
+    '<button class="btn ghost" data-act="data-reset-filter">重置筛选</button></div>';
+  var rows=all.filter(function(x){
+    if(f.status==='done'&&!x.done)return false;
+    if(f.status==='undone'&&x.done)return false;
+    if(f.subject!=='all'&&x.subject!==f.subject)return false;
+    if(f.from&&x.date<f.from)return false;
+    if(f.to&&x.date>f.to)return false;
+    if(f.kw&&x.content.indexOf(f.kw)<0&&x.note.indexOf(f.kw)<0)return false;
+    return true;
+  });
+  h+='<div class="muted" style="margin-bottom:8px">当前筛选结果：'+rows.length+' 条</div>';
+  h+='<div style="max-height:520px;overflow:auto"><table><tr><th>日期</th><th>科目</th><th>任务内容</th><th>时长</th><th>状态</th><th>备注</th></tr>';
+  rows.slice().reverse().forEach(function(x){
+    h+='<tr><td>'+x.date+'</td><td>'+x.sname+'</td><td>'+esc(x.content)+(x.custom?' <span class="badge">自定义</span>':'')+'</td><td>'+x.duration+'h</td>'+
+      '<td>'+(x.done?'<span style="color:var(--green)">✓ 已完成</span>':'<span style="color:var(--red)">✗ 未完成</span>')+'</td><td>'+esc(x.note)+'</td></tr>';
+  });
+  h+='</table></div></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:10px">数据备份与恢复</h3><p class="muted" style="margin-bottom:12px">数据保存在本机浏览器。换设备或清缓存前先备份；恢复会整体覆盖当前数据。</p>'+
+    '<button class="btn primary" data-act="export-state">导出备份 JSON</button> <label class="btn ghost" style="display:inline-block;cursor:pointer">导入备份 JSON<input type="file" id="import-state-file" accept="application/json,.json" style="display:none"></label></div>';
+  return h;
+}
+function viewSettings(){
+  var p=state.profile;
+  var h='<div class="page-head"><div><h2>设置</h2><div class="muted">修改考生档案，可重新生成计划</div></div></div><div class="card">';
+  h+='<div class="form-row">'+
+    '<div class="field"><label>考试类型</label><select id="set-type"><option '+(p.examType==='非法学'?'selected':'')+'>非法学</option><option '+(p.examType==='法学'?'selected':'')+'>法学</option></select></div>'+
+    '<div class="field"><label>初试日期</label><input id="set-date" type="date" value="'+p.examDate+'"></div>'+
+    '<div class="field"><label>目标院校</label><input id="set-school" value="'+esc(p.targetSchool)+'" placeholder="如：中国政法大学"></div>'+
+    '<div class="field" style="flex:0 0 120px"><label>每日时长(h)</label><input id="set-hours" type="number" min="1" max="12" step="0.5" value="'+p.hours+'"></div></div>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" data-act="save-set">保存档案</button>'+
+    '<button class="btn ghost" data-act="regen-all">按新设置重算全部计划</button>'+
+    '<button class="btn danger" data-act="reset">清空全部数据</button></div>';
+  h+='<p class="muted" style="margin-top:14px">提示：重算计划会覆盖系统生成的任务，你手动修改并标记为「自定义」的任务会保留。</p></div>';
+  h+='<div class="card"><h3 style="font-size:15px;margin-bottom:10px">导出打卡表</h3><p class="muted" style="margin-bottom:12px">可导出明细表或周打卡矩阵，直接用于打印或贴墙打卡。</p>'+
+    '<button class="btn primary" data-act="export-detail">导出明细 CSV</button> <button class="btn ghost" data-act="export-matrix">导出周打卡矩阵 CSV</button></div>';
+  return h;
+}
+function render(){
+  document.getElementById('topbar').innerHTML=headerHTML();
+  renderNav();
+  var m=document.getElementById('main'),t=state.ui.tab;
+  if(t==='today')m.innerHTML=viewToday();
+  else if(t==='calendar')m.innerHTML=viewCalendar();
+  else if(t==='weekly')m.innerHTML=viewWeekly();
+  else if(t==='data')m.innerHTML=viewData();
+  else if(t==='posts')m.innerHTML=viewPosts();
+  else if(t==='countdown')m.innerHTML=viewCountdown();
+  else if(t==='feedback')m.innerHTML=viewFeedback();
+  else m.innerHTML=viewSettings();
+}
+function openModal(html){document.getElementById('modal-root').innerHTML='<div class="modal-mask" data-act="mask"><div class="modal">'+html+'</div></div>';}
+function closeModal(){document.getElementById('modal-root').innerHTML='';}
+function taskModal(date,id){
+  var tasks=state.plans[date]||[],t=null;
+  if(id){for(var i=0;i<tasks.length;i++){if(tasks[i].id===id)t=tasks[i];}}
+  var isNew=!t;
+  var opts=ALL.map(function(s){return '<option value="'+s.id+'" '+((t&&t.subject===s.id)?'selected':'')+'>'+s.name+'</option>';}).join('');
+  var html='<h3>'+(isNew?'新增任务':'修改任务')+'</h3>'+
+    '<div class="field" style="margin-bottom:10px"><label>科目</label><select id="tm-sub">'+opts+'</select></div>'+
+    '<div class="field" style="margin-bottom:10px"><label>任务内容</label><textarea id="tm-content">'+(t?esc(t.content):'')+'</textarea></div>'+
+    '<div class="form-row"><div class="field"><label>时长（小时）</label><input id="tm-dur" type="number" min="0.5" step="0.5" value="'+(t?t.duration:1)+'"></div>'+
+    '<div class="field"><label>备注</label><input id="tm-note" value="'+(t?esc(t.note):'')+'"></div></div>'+
+    '<div class="modal-act"><button class="btn ghost" data-act="close-modal">取消</button><button class="btn primary" data-act="save-task" data-date="'+date+'" data-id="'+(id||'')+'">保存</button></div>';
+  openModal(html);
+}
+function download(content,name,type){
+  var blob=new Blob([content],{type:type||'text/plain;charset=utf-8'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+function exportDetail(){
+  var rows=[['日期','科目','任务内容','计划时长(h)','完成状态','备注']];
+  Object.keys(state.plans).sort().forEach(function(d){
+    (state.plans[d]||[]).forEach(function(t){
+      rows.push([d,getSub(t.subject).name,t.content,t.duration,t.done?'已完成':'未完成',t.note||'']);
+    });
+  });
+  var csv='\uFEFF'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  download(csv,'法硕打卡明细表.csv','text/csv;charset=utf-8');
+}
+function exportMatrix(){
+  var rows=[['日期','政治','英语一','专业基础课','专业综合课','当日复盘']];
+  var ids=['politics','english','base','comp','review'];
+  Object.keys(state.plans).sort().forEach(function(d){
+    var tasks=state.plans[d]||[],row=[d];
+    ids.forEach(function(id){
+      var ts=tasks.filter(function(t){return t.subject===id;});
+      if(!ts.length){row.push('-');return;}
+      var dn=ts.filter(function(t){return t.done;}).length;
+      row.push(dn===ts.length?'✓':(dn>0?'○':'✗'));
+    });
+    rows.push(row);
+  });
+  var csv='\uFEFF'+rows.map(function(r){return r.join(',');}).join('\r\n');
+  download(csv,'法硕周打卡矩阵.csv','text/csv;charset=utf-8');
+}
+function feedbackText(){
+  return state.feedback.map(function(f){return '['+f.time+'] '+f.type+' | '+f.content+' | 联系方式：'+(f.contact||'无');}).join('\n');
+}
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest('[data-act]');
+  if(!el)return;
+  var act=el.getAttribute('data-act'),date=el.getAttribute('data-date'),id=el.getAttribute('data-id');
+  if(act==='mask'){if(e.target===el)closeModal();return;}
+  if(act==='nav'){state.ui.tab=el.getAttribute('data-tab');save();render();return;}
+  if(act==='close-modal'){closeModal();return;}
+  if(act==='toggle'){
+    var ts=state.plans[date]||[];ts.forEach(function(t){if(t.id===id)t.done=!t.done;});save();render();return;
+  }
+  if(act==='edit-task'){taskModal(date,id);return;}
+  if(act==='add-task'){taskModal(date,null);return;}
+  if(act==='del-task'){
+    if(confirm('确定删除这条任务？')){state.plans[date]=(state.plans[date]||[]).filter(function(t){return t.id!==id;});save();render();}
+    return;
+  }
+  if(act==='save-task'){
+    var sub=document.getElementById('tm-sub').value;
+    var content=document.getElementById('tm-content').value.trim()||'未命名任务';
+    var dur=parseFloat(document.getElementById('tm-dur').value)||.5;
+    var note=document.getElementById('tm-note').value.trim();
+    if(!state.plans[date])state.plans[date]=[];
+    if(id){
+      state.plans[date].forEach(function(t){if(t.id===id){t.subject=sub;t.content=content;t.duration=dur;t.note=note;t.custom=true;}});
+    }else{
+      state.plans[date].push({id:uid(),subject:sub,content:content,duration:dur,done:false,note:note,custom:true});
+    }
+    save();closeModal();render();return;
+  }
+  if(act==='recalc-today'){
+    if(confirm('按当前档案重算今日计划？你手动修改过的自定义任务会保留。')){
+      var d=today(),np=generatePlan(d,d,state.profile),old=state.plans[d]||[];
+      var custom=old.filter(function(t){return t.custom;});
+      state.plans[d]=custom.concat(np[d]);save();render();
+    }
+    return;
+  }
+  if(act==='cal-prev'||act==='cal-next'){
+    var p=state.ui.calMonth.split('-'),dd=new Date(+p[0],+p[1]-1+(act==='cal-next'?1:-1),1);
+    state.ui.calMonth=fmt(dd).slice(0,7);save();render();return;
+  }
+  if(act==='cal-day'){state.ui.selDate=date;save();render();return;}
+  if(act==='week-prev'||act==='week-next'){
+    state.ui.weekStart=addDays(state.ui.weekStart,act==='week-next'?7:-7);save();render();return;
+  }
+  if(act==='apply-opt'){
+    var ws=state.ui.weekStart,st=computeWeek(ws);
+    SUBJECTS.forEach(function(s){
+      var b=st.bySubject[s.id],adj=state.profile.weightAdjust[s.id]||1;
+      if(b.total){var r=b.done/b.total;if(r<.6)adj*=.8;else if(r>.9)adj*=1.12;}
+      adj=Math.max(.5,Math.min(1.6,adj));state.profile.weightAdjust[s.id]=Math.round(adj*100)/100;
+    });
+    if(st.rate<.6)state.profile.hours=Math.max(3,state.profile.hours-.5);
+    else if(st.rate>.9)state.profile.hours=Math.min(10,state.profile.hours+.5);
+    var ns=addDays(ws,7),ne=addDays(ws,13),np=generatePlan(ns,ne,state.profile);
+    Object.keys(np).forEach(function(k){
+      var custom=(state.plans[k]||[]).filter(function(t){return t.custom;});
+      state.plans[k]=custom.concat(np[k]);
+    });
+    save();render();alert('优化已应用：科目权重与每日时长已调整，下一周计划已重新生成。');return;
+  }
+  if(act==='add-cd'){
+    var title=document.getElementById('cd-title').value.trim(),dt=document.getElementById('cd-date').value;
+    if(!title||!dt){alert('请填写事项名称和日期');return;}
+    state.countdowns.push({id:uid(),title:title,date:dt,color:document.getElementById('cd-color').value});
+    save();render();return;
+  }
+  if(act==='del-cd'){state.countdowns=state.countdowns.filter(function(c){return c.id!==id;});save();render();return;}
+  if(act==='add-fb'){
+    var content=document.getElementById('fb-content').value.trim();
+    if(!content){alert('请填写反馈内容');return;}
+    state.feedback.push({id:uid(),type:document.getElementById('fb-type').value,content:content,
+      contact:document.getElementById('fb-contact').value.trim(),time:new Date().toLocaleString('zh-CN'),status:'待处理'});
+    save();render();alert('反馈已保存，可点「导出 JSON」或「复制全部」发给开发者。');return;
+  }
+  if(act==='del-fb'){state.feedback=state.feedback.filter(function(f){return f.id!==id;});save();render();return;}
+  if(act==='export-fb'){download(JSON.stringify(state.feedback,null,2),'法硕助手反馈.json','application/json;charset=utf-8');return;}
+  if(act==='copy-fb'){
+    var txt=feedbackText();if(!txt){alert('暂无反馈');return;}
+    if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){alert('已复制到剪贴板');});}
+    else{alert('请手动选中反馈内容复制');}
+    return;
+  }
+  if(act==='save-set'||act==='regen-all'){
+    state.profile.examType=document.getElementById('set-type').value;
+    state.profile.examDate=document.getElementById('set-date').value||state.profile.examDate;
+    state.profile.targetSchool=document.getElementById('set-school').value.trim();
+    var hrs=parseFloat(document.getElementById('set-hours').value)||6;state.profile.hours=hrs;
+    if(act==='regen-all'){
+      if(confirm('确定按新档案重算从今天到初试的全部计划？自定义任务会保留，其余将被覆盖。')){
+        state.plans=generatePlan(today(),state.profile.examDate,state.profile);
+      }
+    }
+    save();render();return;
+  }
+  if(act==='reset'){
+    if(confirm('确定清空全部数据并恢复默认示例？此操作不可撤销。')){try{localStorage.removeItem(KEY);}catch(e){}state=defaultState();save();render();}
+    return;
+  }
+  if(act==='data-reset-filter'){state.ui.dataFilter={status:'all',subject:'all',kw:'',from:'',to:''};save();render();return;}
+  if(act==='export-state'){download(JSON.stringify(state,null,2),'法硕备考助手-数据备份.json','application/json;charset=utf-8');return;}
+  if(act==='export-detail'){exportDetail();return;}
+  if(act==='export-matrix'){exportMatrix();return;}
+});
+
+document.addEventListener('change',function(e){
+  var id=e.target.id;
+  var map={'df-status':'status','df-subject':'subject','df-from':'from','df-to':'to','df-kw':'kw'};
+  if(map[id]){
+    if(!state.ui.dataFilter)state.ui.dataFilter={status:'all',subject:'all',kw:'',from:'',to:''};
+    state.ui.dataFilter[map[id]]=e.target.value;save();render();return;
+  }
+  if(id==='import-state-file'){
+    var file=e.target.files&&e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var obj=JSON.parse(reader.result);
+        if(!obj||!obj.profile||!obj.plans)throw new Error('文件格式不正确');
+        if(confirm('导入将覆盖当前全部数据，确定继续？')){state=obj;save();render();alert('数据已恢复');}
+      }catch(err){alert('导入失败：'+err.message);}
+    };
+    reader.readAsText(file);e.target.value='';
+  }
+});
+
+if(SERVER_MODE){
+  state=defaultState();render();
+  var bootXhr=new XMLHttpRequest();
+  bootXhr.open('GET','/api/state',true);
+  bootXhr.onload=function(){
+    if(bootXhr.status===200){try{var s=JSON.parse(bootXhr.responseText);if(validState(s)){state=s;render();setOnlineStatus(true);}else{save();setOnlineStatus(true);}}catch(e){}}
+  };
+  bootXhr.onerror=function(){setOnlineStatus(false);};
+  bootXhr.send();
+  window.addEventListener('beforeunload',function(){
+    try{var x=new XMLHttpRequest();x.open('POST','/api/state',false);x.setRequestHeader('Content-Type','application/json;charset=utf-8');x.send(JSON.stringify(state));}catch(e){}
+  });
+}else{
+  state=load();save();render();
+}
+})();
+</script>
+</body>
+</html>
