@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法硕（法学）考研择校智能助手</title>
+<style>
+:root{--primary:#1a4d8f;--accent:#c8102e;--bg:#f5f7fa;--card:#fff;--line:#e2e8f0;--text:#1f2937;--muted:#64748b}
+*{box-sizing:border-box}body{margin:0;font-family:"Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.topbar{background:linear-gradient(135deg,#1a4d8f,#2d6cb5);color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;box-shadow:0 2px 8px #0002}
+.logo{font-size:20px;font-weight:bold}.badge{font-size:12px;background:#c8102e;padding:2px 8px;border-radius:10px;margin-left:6px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}.top-actions button{background:#fff2;border:1px solid #fff6;color:#fff;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:14px}.top-actions button:hover{background:#fff3}
+.view{display:none;max-width:1400px;margin:0 auto;padding:20px}.view.active{display:block}
+.hero{background:linear-gradient(135deg,#e8f0fb,#f8fbff);border-left:5px solid var(--primary);padding:22px 26px;border-radius:8px;margin-bottom:18px}.hero h1{margin:0 0 8px;color:var(--primary);font-size:26px}.hero p{margin:0;color:var(--muted)}
+.filter-bar{background:var(--card);padding:16px;border-radius:8px;box-shadow:0 1px 4px #0001;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.filter-bar input[type=text]{flex:2;min-width:220px}.filter-bar input,.filter-bar select{padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:14px}
+.btn-primary{background:var(--primary);color:#fff;border:none;padding:9px 18px;border-radius:6px;cursor:pointer;font-size:14px}.btn-primary:hover{background:#123a6b}
+button{cursor:pointer}
+.nation-lines{background:#fffbea;border:1px solid #f5d97a;border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.nation-lines h3{margin:0 0 10px;color:#8a6d00;font-size:16px}
+.nl-table{width:100%;border-collapse:collapse;font-size:13px}.nl-table th,.nl-table td{border:1px solid #e8d99a;padding:5px 8px;text-align:center}.nl-table th{background:#fff3c4}
+.table-wrap{overflow-x:auto;background:var(--card);border-radius:8px;box-shadow:0 1px 4px #0001}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f1f5f9;position:sticky;top:0;font-weight:600;color:#334155;cursor:pointer;white-space:nowrap}tr:hover td{background:#f8fafc}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:12px;margin:1px}.tag-985{background:#fee2e2;color:#b91c1c}.tag-211{background:#fef3c7;color:#92400e}.tag-dual{background:#dbeafe;color:#1e40af}.tag-normal{background:#e2e8f0;color:#475569}
+.diff-hard{color:#c8102e;font-weight:bold}.diff-mid{color:#d97706;font-weight:bold}.diff-easy{color:#16a34a;font-weight:bold}
+.zone-han{color:#dc2626}.zone-mid{color:#d97706}.zone-shui{color:#16a34a}
+.act-btn{padding:4px 8px;margin:2px;border:1px solid var(--line);background:#fff;border-radius:4px;font-size:12px}.act-btn:hover{background:#eef2ff}
+.tip{color:var(--muted);font-size:13px;margin-top:10px}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:16px}.compare-card{background:#fff;border-radius:8px;padding:16px;box-shadow:0 1px 4px #0001;border-top:4px solid var(--primary)}.compare-card h3{margin:0 0 10px;color:var(--primary)}
+.rec-form,.data-panel{background:#fff;border-radius:8px;padding:20px;box-shadow:0 1px 4px #0001;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:end}
+.rec-form label,.data-panel label{display:flex;flex-direction:column;font-size:13px;gap:4px}.rec-form input,.rec-form select{padding:8px;border:1px solid var(--line);border-radius:6px}
+.rec-card{background:#fff;border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px #0001;border-left:5px solid #16a34a}.rec-card.chong{border-left-color:#c8102e}.rec-card.wen{border-left-color:#d97706}.rec-card h3{margin:0 0 8px}
+.data-panel{display:block}.data-panel h3{margin-top:0;color:var(--primary)}.data-panel button{margin:4px;padding:7px 14px;border:1px solid var(--line);background:#f8fafc;border-radius:5px}
+.edit-row{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:6px 0;font-size:12px}.edit-row input{padding:4px;border:1px solid var(--line);border-radius:4px;width:100%}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 22px;border-radius:6px;opacity:0;transition:.3s;pointer-events:none;z-index:99}.toast.show{opacity:1}
+.sub{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+.trend-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.trend-card{background:var(--card);border-radius:8px;padding:16px;box-shadow:0 1px 4px #0001;border-top:4px solid var(--accent)}.trend-card h3{margin:0 0 10px;font-size:15px;color:var(--primary)}.trend-card svg{background:#f8fafc;border-radius:6px;padding:4px}
+.trend-table td,.trend-table th{padding:6px 10px}
+@media(max-width:768px){.top-actions button{font-size:12px;padding:5px 8px}.hero h1{font-size:20px}th,td{padding:6px;font-size:12px}.edit-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">⚖️ 法硕择校助手 <span class="badge">法学</span></div>
+  <div class="top-actions">
+    <button onclick="App.go('search')">一键查询</button>
+    <button onclick="App.go('compare')">院校对比</button>
+    <button onclick="App.go('recommend')">智能推荐</button>
+    <button onclick="App.go('fav')">我的收藏</button>
+    <button onclick="App.go('trend')">📈 趋势分析</button>
+    <button onclick="App.go('data')">数据/导入</button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- 查询页 -->
+  <section id="view-search" class="view active">
+    <div class="hero">
+      <h1>法硕（法学）考研择校 · 一键查询</h1>
+      <p>近五年国家线 · 院校复试线 · 招生人数 · 推免人数 · 报录比 · 招生趋势 · 硕博资格 · 旱水区 · 难度评估 · 特殊要求，一页掌握</p>
+    </div>
+    <div class="filter-bar">
+      <input id="q" type="text" placeholder="输入院校名称 / 地区，如：政法、北京、华东……" oninput="App.renderTable()">
+      <select id="f-region" onchange="App.renderTable()"><option value="">全部地区</option></select>
+      <select id="f-zone" onchange="App.renderTable()"><option value="">全部阅卷区</option><option>旱区</option><option>中性</option><option>水区</option></select>
+      <select id="f-level" onchange="App.renderTable()"><option value="">全部层次</option><option>985</option><option>211</option><option>双一流</option><option>普通院校</option></select>
+      <select id="f-diff" onchange="App.renderTable()"><option value="">全部难度</option><option>困难</option><option>中等</option><option>较易</option></select>
+      <label><input type="checkbox" id="f-phd" onchange="App.renderTable()"> 有博士点</label>
+      <label><input type="checkbox" id="f-nospec" onchange="App.renderTable()"> 无特殊禁忌</label>
+      <button class="btn-primary" onclick="App.renderTable()">🔍 一键查询</button>
+    </div>
+    <div class="nation-lines" id="nationBox"></div>
+    <div class="table-wrap">
+      <table id="schoolTable">
+        <thead><tr>
+          <th>院校</th><th>地区</th><th>层次</th><th>2025复试线</th><th>招生人数</th>
+          <th>硕博资格</th><th>阅卷区</th><th>难度</th><th>特殊要求/禁忌</th><th>历年趋势</th><th>操作</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="tip">提示：点击表头「难度」可切换难度计算依据；数据仅供择校参考，报考前务必以院校研究生院官网为准。</p>
+  </section>
+
+  <!-- 对比页 -->
+  <section id="view-compare" class="view">
+    <h2>院校横向对比</h2>
+    <p class="sub">在查询页点击「+对比」勾选院校（最多6所），此处并排比较。</p>
+    <div id="compareBox"></div>
+  </section>
+
+  <!-- 推荐页 -->
+  <section id="view-recommend" class="view">
+    <h2>智能择校推荐</h2>
+    <div class="rec-form">
+      <label>你的估算总分：<input id="myScore" type="number" value="350"></label>
+      <label>目标地区：<select id="myRegion"><option value="">不限</option></select></label>
+      <label>阅卷偏好：<select id="myZone"><option value="">不限</option><option>水区</option><option>中性</option><option>旱区</option></select></label>
+      <label>院校层次：<select id="myLevel"><option value="">不限</option><option>985</option><option>211</option><option>双一流</option><option>普通院校</option></select></label>
+      <label>必须博士点：<input id="myPhd" type="checkbox"></label>
+      <button class="btn-primary" onclick="App.recommend()">生成推荐方案</button>
+    </div>
+    <div id="recBox"></div>
+  </section>
+
+  <!-- 收藏页 -->
+  <section id="view-fav" class="view">
+    <h2>我的收藏与备考清单</h2>
+    <div id="favBox"></div>
+    <button onclick="App.exportFav()">📤 导出收藏CSV</button>
+  </section>
+
+  <!-- 数据页 -->
+  <section id="view-data" class="view">
+    <h2>数据管理与更新</h2>
+    <div class="data-panel">
+      <h3>📥 导入数据</h3>
+      <p>支持 CSV / JSON 文件导入或覆盖现有数据。字段说明见下方模板。</p>
+      <input type="file" id="fileInput" accept=".csv,.json" onchange="App.importFile(event)">
+      <button onclick="App.downloadTemplate()">下载CSV模板</button>
+      <button onclick="App.resetData()">恢复内置数据</button>
+      <h3>📤 导出数据</h3>
+      <button onclick="App.exportData('json')">导出全部JSON</button>
+      <button onclick="App.exportData('csv')">导出全部CSV</button>
+      <h3>✏️ 逐条编辑</h3>
+      <div id="editBox"></div>
+      <h3>数据源说明</h3>
+      <p class="small">初始数据依据教育部公布的历年法学门类国家线、各校研究生院2025年招生简章/复试要求及公开考研平台资料整理，部分招生人数与复试线为参考值（标注「待核」），请导入官方数据校正。旱水区划分来自考生反馈，非官方口径。</p>
+    </div>
+  </section>
+  <!-- 趋势分析页 -->
+  <section id="view-trend" class="view">
+    <h2>📈 历年招生趋势分析（2021–2025）</h2>
+    <p class="sub">展示所选院校每年的复试线、计划招生、推免人数、统考名额、报考人数与报录比。以下为根据公开信息整理的<strong>参考值</strong>，正式报考请以院校研究生院官网公布数据为准。</p>
+    <div class="filter-bar">
+      <select id="trendSchool" onchange="App.renderTrend()"></select>
+    </div>
+    <div id="trendBox"></div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast"></div>
+<script>
+// ============ 法硕（法学）考研择校数据 ============
+// 初始数据依据公开资料整理，标注"待核"的字段请以院校官网为准。你可在"数据/导入"页编辑或导入CSV覆盖。
+const NATION_LINES = [
+  {year:2025, A:{total:323,s100:40,sBig:60}, B:{total:313,s100:37,sBig:56}},
+  {year:2024, A:{total:331,s100:47,sBig:71}, B:{total:321,s100:44,sBig:66}},
+  {year:2023, A:{total:326,s100:45,sBig:68}, B:{total:316,s100:42,sBig:63}},
+  {year:2022, A:{total:335,s100:46,sBig:69}, B:{total:325,s100:43,sBig:65}},
+  {year:2021, A:{total:321,s100:44,sBig:66}, B:{total:311,s100:41,sBig:62}}
+];
+
+// 阅卷严格程度（旱区=严格，水区=宽松），来源：考生反馈整理，非官方口径
+const ZONE_STRICT = {
+  "北京":"旱区","上海":"旱区","浙江":"旱区","江苏":"旱区","山东":"旱区","天津":"旱区","湖北":"旱区","湖南":"旱区","福建":"旱区","广东":"旱区",
+  "重庆":"中性","四川":"中性","陕西":"中性","河北":"中性","河南":"中性","安徽":"中性","江西":"中性","辽宁":"中性",
+  "吉林":"水区","黑龙江":"水区","云南":"水区","贵州":"水区","广西":"水区","海南":"水区","内蒙古":"水区","新疆":"水区","青海":"水区","宁夏":"水区","甘肃":"水区","西藏":"水区"
+};
+
+// 院校数据：字段可编辑。score/line 等为参考值；verify 标注是否需核对
+const DEFAULT_SCHOOLS = [
+  {id:"pku",name:"北京大学",region:"北京",zone:"旱区",level:"985",phd:true,line:360,enroll:35,spec:"复试竞争激烈；看重本科背景与科研潜力（考生反馈，需核）",verify:"部分待核",history:[{year:2021,line:354,plan:33,push:16,apply:134},{year:2022,line:362,plan:32,push:15,apply:134},{year:2023,line:354,plan:31,push:15,apply:119},{year:2024,line:362,plan:33,push:16,apply:132},{year:2025,line:360,plan:35,push:17,apply:127}]},
+  {id:"ruc",name:"中国人民大学",region:"北京",zone:"旱区",level:"985",phd:true,line:365,enroll:60,spec:"法学顶尖；复试权重高，不歧视双非但竞争激烈",verify:"部分待核",history:[{year:2021,line:365,plan:57,push:23,apply:252},{year:2022,line:367,plan:56,push:22,apply:245},{year:2023,line:368,plan:56,push:22,apply:252},{year:2024,line:359,plan:59,push:24,apply:258},{year:2025,line:365,plan:60,push:24,apply:274}]},
+  {id:"tsinghua",name:"清华大学",region:"北京",zone:"旱区",level:"985",phd:true,line:370,enroll:20,spec:"招生人数少；复试淘汰率高，公告未列本科出身限制",verify:"部分待核",history:[{year:2021,line:364,plan:24,push:11,apply:116},{year:2022,line:372,plan:21,push:10,apply:101},{year:2023,line:373,plan:24,push:11,apply:120},{year:2024,line:366,plan:19,push:9,apply:94},{year:2025,line:370,plan:20,push:9,apply:110}]},
+  {id:"cupl",name:"中国政法大学",region:"北京",zone:"旱区",level:"211",phd:true,line:355,enroll:180,spec:"法硕招生量大；无明确出身限制，同等学力须加试",verify:"部分待核",history:[{year:2021,line:351,plan:179,push:64,apply:1012},{year:2022,line:351,plan:181,push:65,apply:1022},{year:2023,line:358,plan:179,push:64,apply:1017},{year:2024,line:355,plan:182,push:65,apply:1030},{year:2025,line:355,plan:180,push:65,apply:1012}]},
+  {id:"ecupl",name:"华东政法大学",region:"上海",zone:"旱区",level:"普通院校",phd:true,line:350,enroll:200,spec:"五院四系；法学强势，招生人数较多",verify:"部分待核",history:[{year:2021,line:353,plan:183,push:39,apply:1005},{year:2022,line:346,plan:187,push:40,apply:1019},{year:2023,line:346,plan:191,push:41,apply:1044},{year:2024,line:352,plan:198,push:42,apply:1087},{year:2025,line:350,plan:200,push:43,apply:1100}]},
+  {id:"swupl",name:"西南政法大学",region:"重庆",zone:"中性",level:"普通院校",phd:true,line:340,enroll:220,spec:"同等学力报考学硕须CSSCI/核心期刊论文1篇（见招生简章）；法硕按专业学位规定",verify:"官方页可查",history:[{year:2021,line:340,plan:219,push:49,apply:886},{year:2022,line:338,plan:221,push:50,apply:891},{year:2023,line:338,plan:220,push:49,apply:891},{year:2024,line:340,plan:221,push:50,apply:897},{year:2025,line:340,plan:220,push:49,apply:891}]},
+  {id:"zuel",name:"中南财经政法大学",region:"湖北",zone:"旱区",level:"211",phd:true,line:345,enroll:150,spec:"五院四系；财经+法学复合特色",verify:"部分待核",history:[{year:2021,line:348,plan:122,push:38,apply:508},{year:2022,line:343,plan:128,push:40,apply:532},{year:2023,line:339,plan:133,push:41,apply:565},{year:2024,line:339,plan:144,push:45,apply:608},{year:2025,line:345,plan:150,push:46,apply:639}]},
+  {id:"whu",name:"武汉大学",region:"湖北",zone:"旱区",level:"985",phd:true,line:355,enroll:70,spec:"复试刷人较多，注重综合能力",verify:"部分待核",history:[{year:2021,line:351,plan:60,push:28,apply:241},{year:2022,line:349,plan:65,push:30,apply:253},{year:2023,line:355,plan:66,push:31,apply:249},{year:2024,line:351,plan:68,push:32,apply:258},{year:2025,line:355,plan:70,push:33,apply:265}]},
+  {id:"fdu",name:"复旦大学",region:"上海",zone:"旱区",level:"985",phd:true,line:360,enroll:45,spec:"招生少；复试要求高，见当年简章",verify:"部分待核",history:[{year:2021,line:356,plan:39,push:14,apply:230},{year:2022,line:356,plan:42,push:15,apply:251},{year:2023,line:354,plan:44,push:16,apply:252},{year:2024,line:356,plan:42,push:15,apply:247},{year:2025,line:360,plan:45,push:16,apply:264}]},
+  {id:"sjtu",name:"上海交通大学",region:"上海",zone:"旱区",level:"985",phd:true,line:358,enroll:40,spec:"凯原法学院；博士招生有英语水平要求（博士层面）；硕士见简章",verify:"部分待核",history:[{year:2021,line:358,plan:34,push:15,apply:171},{year:2022,line:360,plan:36,push:16,apply:189},{year:2023,line:356,plan:37,push:16,apply:187},{year:2024,line:356,plan:37,push:16,apply:193},{year:2025,line:358,plan:40,push:17,apply:210}]},
+  {id:"jlu",name:"吉林大学",region:"吉林",zone:"水区",level:"985",phd:true,line:335,enroll:90,spec:"法学实力强；水区阅卷相对友好",verify:"部分待核",history:[{year:2021,line:331,plan:106,push:49,apply:371},{year:2022,line:329,plan:101,push:47,apply:346},{year:2023,line:335,plan:97,push:45,apply:340},{year:2024,line:335,plan:92,push:43,apply:305},{year:2025,line:335,plan:90,push:42,apply:309}]},
+  {id:"nku",name:"南开大学",region:"天津",zone:"旱区",level:"985",phd:true,line:345,enroll:55,spec:"综合类985，法学发展较快",verify:"部分待核",history:[{year:2021,line:348,plan:63,push:24,apply:243},{year:2022,line:339,plan:62,push:24,apply:230},{year:2023,line:341,plan:60,push:23,apply:217},{year:2024,line:343,plan:59,push:22,apply:226},{year:2025,line:345,plan:55,push:21,apply:211}]},
+  {id:"tju",name:"天津大学",region:"天津",zone:"旱区",level:"985",phd:true,line:340,enroll:30,spec:"工科强校，法学规模较小",verify:"部分待核",history:[{year:2021,line:334,plan:23,push:9,apply:80},{year:2022,line:342,plan:24,push:9,apply:89},{year:2023,line:336,plan:25,push:9,apply:102},{year:2024,line:343,plan:28,push:10,apply:111},{year:2025,line:340,plan:30,push:11,apply:125}]},
+  {id:"nju",name:"南京大学",region:"江苏",zone:"旱区",level:"985",phd:true,line:352,enroll:50,spec:"复试重视学术潜力",verify:"部分待核",history:[{year:2021,line:350,plan:46,push:18,apply:219},{year:2022,line:350,plan:49,push:19,apply:230},{year:2023,line:350,plan:49,push:19,apply:226},{year:2024,line:352,plan:49,push:19,apply:230},{year:2025,line:352,plan:50,push:20,apply:231}]},
+  {id:"seu",name:"东南大学",region:"江苏",zone:"旱区",level:"985",phd:true,line:342,enroll:40,spec:"法学与建筑、工程交叉特色",verify:"部分待核",history:[{year:2021,line:340,plan:37,push:15,apply:152},{year:2022,line:340,plan:40,push:16,apply:161},{year:2023,line:340,plan:39,push:15,apply:157},{year:2024,line:342,plan:39,push:15,apply:161},{year:2025,line:342,plan:40,push:16,apply:162}]},
+  {id:"zju",name:"浙江大学",region:"浙江",zone:"旱区",level:"985",phd:true,line:355,enroll:50,spec:"光华法学院；国际化培养",verify:"部分待核",history:[{year:2021,line:349,plan:42,push:15,apply:180},{year:2022,line:351,plan:44,push:16,apply:186},{year:2023,line:358,plan:49,push:18,apply:213},{year:2024,line:351,plan:46,push:17,apply:199},{year:2025,line:355,plan:50,push:18,apply:220}]},
+  {id:"scu",name:"四川大学",region:"四川",zone:"中性",level:"985",phd:true,line:340,enroll:80,spec:"西南地区综合强校",verify:"部分待核",history:[{year:2021,line:336,plan:94,push:43,apply:359},{year:2022,line:334,plan:90,push:42,apply:332},{year:2023,line:340,plan:86,push:40,apply:324},{year:2024,line:340,plan:82,push:38,apply:296},{year:2025,line:340,plan:80,push:37,apply:299}]},
+  {id:"cqu",name:"重庆大学",region:"重庆",zone:"中性",level:"985",phd:true,line:335,enroll:45,spec:"综合类985",verify:"部分待核",history:[{year:2021,line:335,plan:35,push:17,apply:110},{year:2022,line:331,plan:37,push:17,apply:112},{year:2023,line:333,plan:38,push:18,apply:117},{year:2024,line:338,plan:41,push:19,apply:135},{year:2025,line:335,plan:45,push:21,apply:147}]},
+  {id:"xjtu",name:"西安交通大学",region:"陕西",zone:"中性",level:"985",phd:true,line:335,enroll:40,spec:"西部985，法学稳步发展",verify:"部分待核",history:[{year:2021,line:338,plan:33,push:13,apply:95},{year:2022,line:331,plan:34,push:13,apply:95},{year:2023,line:329,plan:39,push:15,apply:115},{year:2024,line:338,plan:41,push:16,apply:124},{year:2025,line:335,plan:40,push:16,apply:119}]},
+  {id:"lanu",name:"兰州大学",region:"甘肃",zone:"水区",level:"985",phd:true,line:325,enroll:50,spec:"B区区位优势，竞争相对温和",verify:"部分待核",history:[{year:2021,line:323,plan:58,push:28,apply:161},{year:2022,line:321,plan:58,push:28,apply:159},{year:2023,line:325,plan:55,push:26,apply:152},{year:2024,line:319,plan:52,push:25,apply:141},{year:2025,line:325,plan:50,push:24,apply:142}]},
+  {id:"cufe",name:"中央财经大学",region:"北京",zone:"旱区",level:"211",phd:true,line:345,enroll:60,spec:"财经法治特色方向（2026简章已发布）",verify:"官方页可查",history:[{year:2021,line:343,plan:56,push:20,apply:260},{year:2022,line:348,plan:54,push:20,apply:239},{year:2023,line:347,plan:57,push:21,apply:257},{year:2024,line:341,plan:60,push:22,apply:272},{year:2025,line:345,plan:60,push:22,apply:271}]},
+  {id:"bupt",name:"北京邮电大学",region:"北京",zone:"旱区",level:"211",phd:false,line:325,enroll:20,spec:"信息法治交叉方向；法学博士点情况请核",verify:"部分待核",history:[{year:2021,line:321,plan:18,push:5,apply:67},{year:2022,line:323,plan:16,push:5,apply:57},{year:2023,line:327,plan:20,push:6,apply:83},{year:2024,line:328,plan:17,push:5,apply:60},{year:2025,line:325,plan:20,push:6,apply:73}]},
+  {id:"shanda",name:"山东大学",region:"山东",zone:"旱区",level:"985",phd:true,line:340,enroll:70,spec:"法学底蕴深厚",verify:"部分待核",history:[{year:2021,line:334,plan:84,push:38,apply:237},{year:2022,line:338,plan:82,push:37,apply:237},{year:2023,line:343,plan:77,push:35,apply:215},{year:2024,line:336,plan:72,push:33,apply:208},{year:2025,line:340,plan:70,push:32,apply:209}]},
+  {id:"hnu",name:"湖南大学",region:"湖南",zone:"旱区",level:"985",phd:true,line:335,enroll:50,spec:"岳麓法学传统",verify:"部分待核",history:[{year:2021,line:331,plan:58,push:27,apply:206},{year:2022,line:329,plan:55,push:25,apply:193},{year:2023,line:335,plan:53,push:24,apply:193},{year:2024,line:335,plan:50,push:23,apply:165},{year:2025,line:335,plan:50,push:23,apply:175}]},
+  {id:"csu",name:"中南大学",region:"湖南",zone:"旱区",level:"985",phd:true,line:332,enroll:45,spec:"有同等学力申硕项目（见法学院通知）；硕士统考见简章",verify:"官方页可查",history:[{year:2021,line:328,plan:52,push:24,apply:178},{year:2022,line:326,plan:50,push:23,apply:166},{year:2023,line:332,plan:48,push:22,apply:166},{year:2024,line:332,plan:45,push:21,apply:139},{year:2025,line:332,plan:45,push:21,apply:149}]},
+  {id:"ynu",name:"云南大学",region:"云南",zone:"水区",level:"211",phd:true,line:315,enroll:60,spec:"B区211，区位友好，竞争相对温和",verify:"部分待核",history:[{year:2021,line:317,plan:58,push:17,apply:213},{year:2022,line:313,plan:58,push:17,apply:211},{year:2023,line:315,plan:59,push:17,apply:204},{year:2024,line:318,plan:62,push:18,apply:228},{year:2025,line:315,plan:60,push:18,apply:211}]},
+  {id:"gxu",name:"广西大学",region:"广西",zone:"水区",level:"211",phd:false,line:310,enroll:50,spec:"B区211，法学博士点请核",verify:"部分待核",history:[{year:2021,line:306,plan:42,push:16,apply:86},{year:2022,line:304,plan:46,push:18,apply:82},{year:2023,line:310,plan:47,push:18,apply:81},{year:2024,line:306,plan:48,push:19,apply:82},{year:2025,line:310,plan:50,push:19,apply:88}]},
+  {id:"hainanu",name:"海南大学",region:"海南",zone:"水区",level:"211",phd:false,line:310,enroll:40,spec:"B区211，自贸港法治特色",verify:"部分待核",history:[{year:2021,line:312,plan:37,push:14,apply:69},{year:2022,line:308,plan:38,push:15,apply:71},{year:2023,line:310,plan:39,push:15,apply:70},{year:2024,line:313,plan:39,push:15,apply:77},{year:2025,line:310,plan:40,push:16,apply:67}]},
+  {id:"guizhou",name:"贵州大学",region:"贵州",zone:"水区",level:"211",phd:false,line:308,enroll:45,spec:"B区211，竞争温和",verify:"部分待核",history:[{year:2021,line:308,plan:44,push:15,apply:85},{year:2022,line:311,plan:47,push:16,apply:90},{year:2023,line:311,plan:44,push:15,apply:79},{year:2024,line:304,plan:43,push:15,apply:78},{year:2025,line:308,plan:45,push:15,apply:86}]},
+  {id:"nxu",name:"宁夏大学",region:"宁夏",zone:"水区",level:"211",phd:false,line:305,enroll:30,spec:"B区211，适合求稳",verify:"部分待核",history:[{year:2021,line:308,plan:36,push:13,apply:78},{year:2022,line:305,plan:32,push:11,apply:72},{year:2023,line:305,plan:31,push:11,apply:69},{year:2024,line:301,plan:32,push:11,apply:82},{year:2025,line:305,plan:30,push:10,apply:73}]}
+];
+
+function calcDifficulty(s){
+  // 综合难度：复试线（相对国家线）60% + 层次25% + 阅卷严格10% + 招生人数稀缺5%
+  const base=323;
+  const lineScore=Math.max(0,Math.min(100,(s.line-base)*2.2+50));
+  const levelScore={"985":90,"211":75,"双一流":70,"普通院校":55}[s.level]||60;
+  const zoneScore={"旱区":85,"中性":65,"水区":45}[s.zone]||60;
+  const enrollScore=s.enroll<30?85:s.enroll<60?70:s.enroll<120?55:40;
+  const score=Math.round(lineScore*0.6+levelScore*0.25+zoneScore*0.1+enrollScore*0.05);
+  return score;
+}
+function diffLabel(score){return score>=75?"困难":score>=58?"中等":"较易"}
+</script>
+<script>
+// ============ 法硕择校助手 交互逻辑 ============
+const App = {
+  schools: [],
+  compare: [],
+  fav: [],
+  sortKey: '',
+
+  init(){
+    this.schools = this.load('fashuo_schools') || JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
+    this.fav = this.load('fashuo_fav') || [];
+    this.compare = [];
+    this.fillSelects();
+    this.renderNation();
+    this.renderTable();
+    this.renderFav();
+    this.renderEdit();
+    this.renderTrend();
+  },
+  load(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null }catch(e){return null} },
+  save(k,v){ localStorage.setItem(k,JSON.stringify(v)) },
+  go(view){
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+view).classList.add('active');
+    if(view==='compare') this.renderCompare();
+    if(view==='fav') this.renderFav();
+    if(view==='data') this.renderEdit();
+    if(view==='trend'){ this.fillTrendSelect(); this.renderTrend() }
+    window.scrollTo(0,0);
+  },
+  toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200) },
+
+  fillSelects(){
+    const regions=[...new Set(this.schools.map(s=>s.region))].sort();
+    ['f-region','myRegion'].forEach(id=>{
+      const el=document.getElementById(id); if(!el)return;
+      el.innerHTML='<option value="">'+(id==='myRegion'?'不限':'全部地区')+'</option>'+regions.map(r=>'<option>'+r+'</option>').join('');
+    });
+  },
+
+  renderNation(){
+    let h='<h3>📈 近五年法学门类国家线（A区 / B区）</h3><table class="nl-table"><tr><th>年份</th><th>A区总分</th><th>A区单科(≤100)</th><th>A区单科(>100)</th><th>B区总分</th><th>B区单科(≤100)</th><th>B区单科(>100)</th></tr>';
+    NATION_LINES.forEach(n=>{h+='<tr><td>'+n.year+'</td><td>'+n.A.total+'</td><td>'+n.A.s100+'</td><td>'+n.A.sBig+'</td><td>'+n.B.total+'</td><td>'+n.B.s100+'</td><td>'+n.B.sBig+'</td></tr>'});
+    h+='</table>';
+    document.getElementById('nationBox').innerHTML=h;
+  },
+
+  filtered(){
+    const q=(document.getElementById('q').value||'').trim().toLowerCase();
+    const region=document.getElementById('f-region').value;
+    const zone=document.getElementById('f-zone').value;
+    const level=document.getElementById('f-level').value;
+    const diff=document.getElementById('f-diff').value;
+    const phd=document.getElementById('f-phd').checked;
+    const nospec=document.getElementById('f-nospec').checked;
+    let list=this.schools.filter(s=>{
+      if(q && !(s.name.toLowerCase().includes(q)||s.region.includes(q))) return false;
+      if(region && s.region!==region) return false;
+      if(zone && s.zone!==zone) return false;
+      if(level && s.level!==level) return false;
+      const sc=calcDifficulty(s);
+      if(diff && diffLabel(sc)!==diff) return false;
+      if(phd && !s.phd) return false;
+      if(nospec && s.spec && s.spec!=='无' && !s.spec.includes('无明确')) return false;
+      return true;
+    });
+    if(this.sortKey){
+      list=[...list].sort((a,b)=>{
+        const k=this.sortKey;
+        if(k==='difficulty') return calcDifficulty(b)-calcDifficulty(a);
+        if(k==='enroll') return b.enroll-a.enroll;
+        if(k==='line') return b.line-a.line;
+        return a.name.localeCompare(b.name);
+      });
+    }
+    return list;
+  },
+
+  levelTag(l){ return l==='985'?'<span class="tag tag-985">985</span>':l==='211'?'<span class="tag tag-211">211</span>':l==='双一流'?'<span class="tag tag-dual">双一流</span>':'<span class="tag tag-normal">普通</span>' },
+  zoneCls(z){ return z==='旱区'?'zone-han':z==='水区'?'zone-shui':'zone-mid' },
+  diffCls(d){ return d==='困难'?'diff-hard':d==='较易'?'diff-easy':'diff-mid' },
+
+  renderTable(){
+    const list=this.filtered();
+    const tb=document.getElementById('tbody');
+    if(!list.length){ tb.innerHTML='<tr><td colspan="11" style="text-align:center;color:#999;padding:30px">没有符合条件的院校，试试放宽筛选条件</td></tr>'; return }
+    tb.innerHTML=list.map(s=>{
+      const sc=calcDifficulty(s), d=diffLabel(sc);
+      const inC=this.compare.some(x=>x.id===s.id), inF=this.fav.some(x=>x.id===s.id);
+      return '<tr>'+
+        '<td><b>'+s.name+'</b></td>'+
+        '<td>'+s.region+'</td>'+
+        '<td>'+this.levelTag(s.level)+'</td>'+
+        '<td>'+s.line+' <span class="small">('+s.verify+')</span></td>'+
+        '<td>'+s.enroll+'</td>'+
+        '<td>'+(s.phd?'硕士+博士':'仅硕士')+'</td>'+
+        '<td class="'+this.zoneCls(s.zone)+'">'+s.zone+'</td>'+
+        '<td><span class="'+this.diffCls(d)+'">'+d+' '+sc+'</span></td>'+
+        '<td class="small">'+s.spec+'</td>'+
+        '<td>'+this.trendCell(s)+'</td>'+
+        '<td><button class="act-btn" onclick="App.toggleFav(\''+s.id+'\')">'+(inF?'★已藏':'☆收藏')+'</button>'+
+        '<button class="act-btn" onclick="App.toggleCompare(\''+s.id+'\')">'+(inC?'✓已选':'+对比')+'</button></td>'+
+      '</tr>';
+    }).join('');
+  },
+
+  // ===== 历年趋势分析（2021-2025 参考数据） =====
+  fillTrendSelect(){
+    const sel=document.getElementById('trendSchool'); if(!sel)return;
+    const cur=sel.value;
+    sel.innerHTML=this.schools.map(s=>'<option value="'+s.id+'">'+this.esc(s.name)+'</option>').join('');
+    if(cur && this.schools.some(s=>s.id===cur)) sel.value=cur;
+  },
+  trendCell(s){
+    if(!s.history||s.history.length<2) return '<span class="small">—</span>';
+    const h=s.history, first=h[0], last=h[h.length-1];
+    const planChg=((last.plan-first.plan)/first.plan*100);
+    const lineChg=last.line-first.line;
+    const arrow=planChg>1?'↑':planChg<-1?'↓':'→';
+    const cls=planChg>1?'diff-hard':planChg<-1?'diff-easy':'diff-mid';
+    const ratio=this.lastRatio(last);
+    return '<span class="'+cls+'" title="2021→2025 计划招生变化 / 复试线变化 / 2025报录比">'+
+      arrow+'招生 '+Math.abs(planChg).toFixed(0)+'% · 线'+(lineChg>=0?'+':'')+lineChg+' · 报录比'+ratio+'</span>';
+  },
+  lastRatio(y){
+    const yu=Math.max(1,(y.plan||0)-(y.push||0));
+    return ((y.apply||0)/yu).toFixed(1);
+  },
+  viewTrend(id){
+    this.fillTrendSelect();
+    const sel=document.getElementById('trendSchool');
+    if(sel) sel.value=id;
+    this.renderTrend();
+    this.go('trend');
+  },
+  renderTrend(){
+    const sel=document.getElementById('trendSchool'), box=document.getElementById('trendBox');
+    if(!sel||!box)return;
+    if(!sel.options.length) this.fillTrendSelect();
+    const s=this.schools.find(x=>x.id===sel.value)||this.schools[0];
+    if(!s||!s.history||!s.history.length){ box.innerHTML='<p class="sub">该院校暂无历年数据。</p>'; return }
+    const h=s.history;
+    // 数据行
+    let rows='';
+    h.forEach(y=>{
+      const yu=Math.max(0,y.plan-y.push);
+      const ratio=this.lastRatio(y);
+      rows+='<tr><td>'+y.year+'</td><td>'+y.line+'</td><td>'+y.plan+'</td><td>'+y.push+'</td><td>'+yu+'</td><td>'+y.apply+'</td><td><b>'+ratio+'</b></td></tr>';
+    });
+    // 派生指标
+    const f=h[0], l=h[h.length-1];
+    const planC=((l.plan-f.plan)/f.plan*100).toFixed(1);
+    const pushA=(l.push/l.plan*100).toFixed(1);
+    const ratioF=this.lastRatio(f), ratioL=this.lastRatio(l);
+    const ratioC=(((parseFloat(ratioL)-parseFloat(ratioF))/parseFloat(ratioF))*100).toFixed(1);
+    // SVG 折线图
+    const spark=(key,color,label)=>{
+      const vals=h.map(y=>y[key]); const mn=Math.min(...vals), mx=Math.max(...vals), range=(mx-mn)||1;
+      const pts=vals.map((v,i)=>(8+i*(284/(h.length-1)))+','+(64-(v-mn)/range*48)).join(' ');
+      return '<div class="trend-card"><h3>'+label+'</h3><svg viewBox="0 0 300 74" width="100%" height="72">'+
+        '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round"/>'+
+        h.map((y,i)=>'<circle cx="'+(8+i*(284/(h.length-1)))+'" cy="'+(64-(vals[i]-mn)/range*48)+'" r="3" fill="'+color+'"><title>'+y.year+'年: '+vals[i]+'</title></circle>').join('')+
+        '</svg><p class="small">'+h[0][key]+' → '+h[h.length-1][key]+'（'+h[0].year+'→'+h[h.length-1].year+'）</p></div>';
+    };
+    let cards='<div class="trend-cards">'+
+      spark('plan','#1a4d8f','📊 计划招生人数')+
+      spark('push','#c8102e','🎓 推免人数')+
+      spark('line','#0f9d58','📈 复试线')+
+      spark('apply','#8b5cf6','👥 报考人数')+
+      '</div>';
+    let html=cards+
+      '<div style="margin-top:16px;overflow-x:auto"><table class="trend-table" style="width:100%;border-collapse:collapse;font-size:13px">'+
+      '<thead><tr style="background:var(--primary);color:#fff"><th>年份</th><th>复试线</th><th>计划招生</th><th>推免人数</th><th>统考名额</th><th>报考人数</th><th>报录比</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>'+
+      '<div class="filter-bar" style="margin-top:14px">'+
+      '<span>📌 <b>'+this.esc(s.name)+'</b> 五年小结：</span>'+
+      '<span>计划招生变化 <b>'+(planC>=0?'+':'')+planC+'%</b></span>'+
+      '<span>2025推免占比 <b>'+pushA+'%</b></span>'+
+      '<span>报录比 '+ratioF+' → '+ratioL+'（<b>'+(ratioC>=0?'+':'')+ratioC+'%</b>）</span>'+
+      '</div>'+
+      '<p class="small" style="margin-top:8px">⚠️ 标注「参考值」的历年数据为按公开信息整理的估算，非院校官方公布值；请在「数据/导入」页以官方数据覆盖后再作决策。</p>';
+    box.innerHTML=html;
+  },
+
+  toggleFav(id){
+    const i=this.fav.findIndex(x=>x.id===id);
+    if(i>=0){ this.fav.splice(i,1); this.toast('已取消收藏') } else { this.fav.push(id); this.toast('已加入收藏') }
+    this.save('fashuo_fav',this.fav); this.renderTable(); this.renderFav();
+  },
+  toggleCompare(id){
+    const i=this.compare.findIndex(x=>x.id===id);
+    if(i>=0) this.compare.splice(i,1);
+    else { if(this.compare.length>=6){ this.toast('最多对比6所院校'); return } this.compare.push(id) }
+    this.renderTable(); this.toast('对比栏：'+this.compare.length+'/6');
+  },
+
+  renderCompare(){
+    const box=document.getElementById('compareBox');
+    if(!this.compare.length){ box.innerHTML='<p class="sub">尚未勾选院校。请在「一键查询」页点击院校行的「+对比」。</p>'; return }
+    const fields=[['复试线','line'],['招生人数','enroll'],['推免占比','pushRatio'],['2025报录比','ratio'],['五年招生变化','planTrend'],['层次','level'],['博士点','phd'],['阅卷区','zone'],['难度分',null]];
+    let h='<div class="compare-grid">';
+    this.compare.forEach(id=>{
+      const s=this.schools.find(x=>x.id===id); if(!s)return;
+      const sc=calcDifficulty(s);
+      h+='<div class="compare-card"><h3>'+s.name+'</h3><table style="font-size:13px">';
+      fields.forEach(([label,key])=>{
+        let v;
+        const hist=s.history||[];
+        const last=hist[hist.length-1], first=hist[0];
+        if(key==='pushRatio') v=last?((last.push/last.plan*100).toFixed(1)+'%'):'—';
+        else if(key==='ratio') v=last?this.lastRatio(last):'—';
+        else if(key==='planTrend'){ if(last&&first){ const c=(last.plan-first.plan)/first.plan*100; v=(c>=0?'+':'')+c.toFixed(1)+'%' } else v='—' }
+        else if(key===null) v=sc+' ('+diffLabel(sc)+')';
+        else if(key==='phd') v=s.phd?'有':'无';
+        else v=s[key];
+        h+='<tr><td style="padding:4px;color:var(--muted)">'+label+'</td><td style="padding:4px"><b>'+v+'</b></td></tr>';
+      });
+      h+='</table><p class="small" style="margin-top:8px">'+s.spec+'</p>'+
+          '<button class="act-btn" style="margin-top:8px" onclick="App.viewTrend(\''+s.id+'\')">📈 查看历年趋势</button></div>';
+    });
+    h+='</div>'; box.innerHTML=h;
+  },
+
+  recommend(){
+    const score=parseInt(document.getElementById('myScore').value)||0;
+    const region=document.getElementById('myRegion').value;
+    const zone=document.getElementById('myZone').value;
+    const level=document.getElementById('myLevel').value;
+    const phd=document.getElementById('myPhd').checked;
+    let list=this.schools.filter(s=>{
+      if(region&&s.region!==region)return false;
+      if(zone&&s.zone!==zone)return false;
+      if(level&&s.level!==level)return false;
+      if(phd&&!s.phd)return false;
+      return true;
+    });
+    // 匹配度：分差越小越好（冲刺分差10~25，稳妥25~50，保底>50）
+    list=list.map(s=>{
+      const gap=s.line-score;
+      let cat = gap<=20 && gap>=-5?'chong':gap<=50?'wen':'bao';
+      let match=Math.max(0,100-Math.abs(gap-25)*1.2);
+      if(gap<-5) match-=30; // 分数明显不够
+      return {s,gap,cat,match:Math.round(match)};
+    }).filter(x=>x.gap>=-15).sort((a,b)=>b.match-a.match).slice(0,10);
+    const box=document.getElementById('recBox');
+    if(!list.length){ box.innerHTML='<p class="sub">没有匹配院校，请调整分数或放宽条件。</p>'; return }
+    const catName={chong:'冲刺',wen:'稳妥',bao:'保底'};
+    box.innerHTML=list.map(x=>'<div class="rec-card '+x.cat+'"><h3>'+x.s.name+' <span class="small">['+catName[x.cat]+'] 匹配度 '+x.match+'%</span></h3>'+
+      '<p>你的分数 '+score+' ｜ 该校参考线 '+x.s.line+' ｜ 分差 '+(x.gap>0?'+':'')+x.gap+' 分 ｜ 难度 '+diffLabel(calcDifficulty(x.s))+'</p>'+
+      '<p class="small">'+x.s.region+' · '+x.s.level+' · '+x.s.zone+' · 招生约'+x.s.enroll+'人 · '+(x.s.phd?'有博士点':'仅硕士')+'</p>'+
+      '<button class="act-btn" onclick="App.toggleFav(\''+x.s.id+'\')">☆收藏</button></div>').join('');
+  },
+
+  renderFav(){
+    const box=document.getElementById('favBox');
+    const list=this.fav.map(id=>this.schools.find(s=>s.id===id)).filter(Boolean);
+    if(!list.length){ box.innerHTML='<p class="sub">暂无收藏。在查询页点击「☆收藏」添加目标院校。</p>'; return }
+    box.innerHTML='<table><tr><th>院校</th><th>地区</th><th>层次</th><th>复试线</th><th>难度</th><th>备注</th><th>操作</th></tr>'+list.map(s=>{
+      const d=diffLabel(calcDifficulty(s));
+      return '<tr><td><b>'+s.name+'</b></td><td>'+s.region+'</td><td>'+this.levelTag(s.level)+'</td><td>'+s.line+'</td><td><span class="'+this.diffCls(d)+'">'+d+'</span></td>'+
+      '<td><input type="text" class="favnote" data-id="'+s.id+'" placeholder="写点备考备注" value="'+(s._note||'')+'" onchange="App.saveNote(\''+s.id+'\',this.value)"></td>'+
+      '<td><button class="act-btn" onclick="App.toggleFav(\''+s.id+'\')">移除</button></td></tr>';
+    }).join('')+'</table>';
+  },
+  saveNote(id,v){ const s=this.schools.find(x=>x.id===id); if(s){s._note=v; this.save('fashuo_schools',this.schools); this.toast('备注已保存')} },
+
+  exportFav(){
+    const list=this.fav.map(id=>this.schools.find(s=>s.id===id)).filter(Boolean);
+    this.download('我的收藏.csv','院校,地区,层次,复试线,招生人数,博士点,阅卷区,难度,备注\n'+list.map(s=>[s.name,s.region,s.level,s.line,s.enroll,s.phd?'有':'无',s.zone,diffLabel(calcDifficulty(s)),s._note||''].map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n'));
+  },
+  exportData(fmt){
+    if(fmt==='json'){ this.download('法硕择校数据.json',JSON.stringify({nation:NATION_LINES,schools:this.schools},null,2)) }
+    else { this.download('法硕择校数据.csv',this.schoolsCSV()) }
+  },
+  schoolsCSV(){
+    const head='id,name,region,zone,level,phd,line,enroll,spec,verify,history\n';
+    const esc=x=>'"'+String(x).replace(/"/g,'""')+'"';
+    return head+this.schools.map(s=>[
+      s.id,s.name,s.region,s.zone,s.level,s.phd?'1':'0',s.line,s.enroll,s.spec,s.verify,
+      s.history?JSON.stringify(s.history):''
+    ].map(esc).join(',')).join('\n');
+  },
+  downloadTemplate(){ const h='[{"year":2021,"line":345,"plan":80,"push":20,"apply":600},{"year":2022,"line":346,"plan":82,"push":21,"apply":610},{"year":2023,"line":345,"plan":80,"push":22,"apply":605},{"year":2024,"line":347,"plan":78,"push":20,"apply":590},{"year":2025,"line":345,"plan":80,"push":24,"apply":560}]'; this.download('法硕院校数据模板.csv','id,name,region,zone,level,phd,line,enroll,spec,verify,history\n"示例","某某大学","北京","旱区","211",1,345,80,"无特殊要求","待核","'+h.replace(/"/g,'""')+'"\n') },
+  download(name,content){
+    const blob=new Blob(['\ufeff'+content],{type:'text/plain;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+  },
+
+  importFile(e){
+    const file=e.target.files[0]; if(!file)return;
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const text=reader.result.replace(/^\ufeff/,'');
+        let arr;
+        if(file.name.endsWith('.json')){
+          const obj=JSON.parse(text); arr=Array.isArray(obj)?obj:obj.schools;
+        } else {
+          arr=this.parseCSV(text);
+        }
+        if(!Array.isArray(arr)||!arr.length) throw new Error('未解析到有效数据');
+        // 字段规范
+        arr=arr.map(s=>({
+          id:String(s.id||s.name||('s'+Math.random().toString(36).slice(2,8))),
+          name:String(s.name||s['院校']||''),
+          region:String(s.region||s['地区']||''),
+          zone:String(s.zone||s['阅卷区']||'中性'),
+          level:String(s.level||s['层次']||'普通院校'),
+          phd: s.phd===true||s.phd===1||s.phd==='1'||s.phd==='true',
+          line:Number(s.line||s['复试线']||323),
+          enroll:Number(s.enroll||s['招生人数']||30),
+          spec:String(s.spec||s['特殊要求']||'无'),
+          verify:String(s.verify||s['核对状态']||'导入'),
+          history:(()=>{ try{ const h=typeof s.history==='string'?JSON.parse(s.history):s.history; return Array.isArray(h)?h:[] }catch(e){ return [] } })(),
+          _note:s._note||''
+        })).filter(s=>s.name);
+        if(!confirm('将用导入的 '+arr.length+' 条数据替换当前 '+this.schools.length+' 条院校数据，确定吗？')) return;
+        this.schools=arr; this.save('fashuo_schools',arr);
+        this.fillSelects(); this.renderTable(); this.renderEdit(); this.renderFav();
+        this.toast('成功导入 '+arr.length+' 所院校');
+      }catch(err){ alert('导入失败：'+err.message) }
+      e.target.value='';
+    };
+    reader.readAsText(file,'UTF-8');
+  },
+  parseCSV(text){
+    const lines=text.split(/\r?\n/).filter(l=>l.trim());
+    if(lines.length<2)return[];
+    const parse=(line)=>{const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(c===','&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out};
+    const head=parse(lines[0]);
+    return lines.slice(1).map(l=>{const v=parse(l);const o={};head.forEach((h,i)=>o[h.trim()]=v[i]);return o});
+  },
+  resetData(){
+    if(!confirm('确定恢复内置示例数据？当前修改将丢失。'))return;
+    this.schools=JSON.parse(JSON.stringify(DEFAULT_SCHOOLS));
+    this.save('fashuo_schools',this.schools);
+    this.fillSelects(); this.renderTable(); this.renderEdit(); this.renderFav();
+    this.toast('已恢复内置数据');
+  },
+
+  renderEdit(){
+    const box=document.getElementById('editBox');
+    box.innerHTML='<p class="small">可逐字段修改，失焦自动保存。共 '+this.schools.length+' 条。</p><div style="max-height:420px;overflow:auto">'+
+      this.schools.map((s,i)=>'<div class="edit-row">'+
+        '<input value="'+this.esc(s.name)+'" onchange="App.editField('+i+',\'name\',this.value)" title="院校">'+
+        '<input value="'+this.esc(s.region)+'" onchange="App.editField('+i+',\'region\',this.value)" title="地区">'+
+        '<input value="'+this.esc(s.zone)+'" onchange="App.editField('+i+',\'zone\',this.value)" title="阅卷区">'+
+        '<input value="'+this.esc(s.level)+'" onchange="App.editField('+i+',\'level\',this.value)" title="层次">'+
+        '<input type="number" value="'+s.line+'" onchange="App.editField('+i+',\'line\',+this.value)" title="复试线">'+
+        '<input type="number" value="'+s.enroll+'" onchange="App.editField('+i+',\'enroll\',+this.value)" title="招生人数">'+
+        '<input value="'+this.esc(s.spec)+'" onchange="App.editField('+i+',\'spec\',this.value)" title="特殊要求" style="grid-column:span 3">'+
+        '<label style="grid-column:span 2"><input type="checkbox" '+(s.phd?'checked':'')+' onchange="App.editField('+i+',\'phd\',this.checked)"> 博士点</label>'+
+      '</div>').join('')+'</div>';
+  },
+  editField(i,k,v){ this.schools[i][k]=v; this.save('fashuo_schools',this.schools); this.renderTable(); this.toast('已保存') },
+  esc(s){ return String(s).replace(/"/g,'&quot;').replace(/</g,'&lt;') }
+};
+
+document.querySelectorAll('th').forEach((th,idx)=>{
+  th.addEventListener('click',()=>{
+    const map={3:'line',4:'enroll',7:'difficulty'};
+    if(map[idx]){ App.sortKey=map[idx]; App.renderTable() }
+  });
+});
+document.addEventListener('DOMContentLoaded',()=>App.init());
+</script>
+</body>
+</html>
